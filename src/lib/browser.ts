@@ -1,7 +1,7 @@
 // Playwright browser automation service
 // Supports: LinkedIn, Indeed DE, StepStone, Xing, Jobbörse
 
-import { Browser, Page, chromium } from 'playwright';
+import { Browser, Page, chromium, chromiumConnect } from 'playwright';
 
 interface Job {
   id: string;
@@ -15,12 +15,56 @@ interface Job {
   postedAt?: string;
 }
 
+interface BrowserOptions {
+  useExisting?: boolean;  // Connect to existing Chrome via CDP
+  profilePath?: string;   // Path to Chrome profile
+  headless?: boolean;
+}
+
 class BrowserService {
   private browser: Browser | null = null;
   private page: Page | null = null;
+  private connectionMode: 'new' | 'cdp' | 'profile' = 'new';
 
-  async init(headless = false) {
-    if (!this.browser) {
+  async init(options: BrowserOptions = {}) {
+    if (this.browser) return this.browser;
+
+    const { useExisting = false, profilePath, headless = false } = options;
+
+    try {
+      if (useExisting) {
+        // Try CDP connection first
+        console.log('🔗 Attempting to connect to existing Chrome via CDP...');
+        try {
+          // Connect to Chrome using CDP
+          // You'll need to start Chrome with: chrome --remote-debugging-port=9222
+          const cdpUrl = 'http://localhost:9222/json/version';
+          const wsEndpoint = await this.getCDPEndpoint(cdpUrl);
+          
+          if (wsEndpoint) {
+            this.browser = await chromiumConnect(wsEndpoint);
+            this.connectionMode = 'cdp';
+            console.log('✅ Connected to existing Chrome via CDP');
+            return this.browser;
+          }
+        } catch (e) {
+          console.log('⚠️ CDP connection failed, trying persistent profile...');
+        }
+
+        // Fallback: Use persistent profile
+        if (profilePath) {
+          const { launchPersistentContext } = await import('playwright');
+          this.browser = await launchPersistentContext(profilePath, {
+            headless: false,
+            args: ['--disable-blink-features=AutomationControlled']
+          });
+          this.connectionMode = 'profile';
+          console.log('✅ Using persistent profile');
+          return this.browser;
+        }
+      }
+
+      // Default: Launch new browser
       this.browser = await chromium.launch({ 
         headless,
         args: [
@@ -29,8 +73,71 @@ class BrowserService {
           '--no-sandbox'
         ]
       });
+      this.connectionMode = 'new';
+      console.log('✅ Launched new browser');
+      return this.browser;
+
+    } catch (e) {
+      console.error('❌ Browser initialization failed:', e);
+      throw e;
     }
-    return this.browser;
+  }
+
+  // Get CDP WebSocket endpoint from Chrome
+  private async getCDPEndpoint(cdpUrl: string): Promise<string | null> {
+    try {
+      const { default: fetch } = await import('node-fetch');
+      const response = await fetch(cdpUrl);
+      const data = await response.json();
+      return data.webSocketDebuggerUrl;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  getConnectionMode() {
+    return this.connectionMode;
+  }
+
+  // Helper: Start Chrome with remote debugging port
+  async startChromeWithCDP(): Promise<void> {
+    const { exec } = await import('child_process');
+    const { promisify } = await import('util');
+    const execAsync = promisify(exec);
+
+    try {
+      // Check if Chrome is already running with remote debugging
+      try {
+        await execAsync('curl -s http://localhost:9222/json/version');
+        console.log('Chrome is already running with remote debugging');
+        return;
+      } catch {}
+
+      // Start Chrome with remote debugging
+      const chromePaths = [
+        'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+        'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+        '/usr/bin/google-chrome',
+        '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+      ];
+
+      // Try to find Chrome on Windows
+      const startChrome = `
+        start "" "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" ^
+          --remote-debugging-port=9222 ^
+          --user-data-dir="%LOCALAPPDATA%\\Google\\Chrome\\User Data\\Default" ^
+          --no-first-run ^
+          --no-default-browser-check
+      `;
+
+      console.log('📢 To use CDP connection, start Chrome manually with:');
+      console.log('   chrome --remote-debugging-port=9222 --user-data-dir=~/.config/google-chrome');
+      console.log('');
+      console.log('Or use persistent profile mode instead.');
+
+    } catch (e) {
+      console.error('Failed to start Chrome:', e);
+    }
   }
 
   async newPage() {
