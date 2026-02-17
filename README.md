@@ -324,38 +324,45 @@ MIT Lizenz - see [LICENSE](LICENSE) Datei.
 
 ---
 
-## What's Different from apply-bot?
+## Why German Job Bot?
 
-### Comparison
+### vs Other Auto-Apply Tools
 
-| Feature | apply-bot | German Job Bot |
-|---------|-----------|----------------|
-| Target Market | US/Canada | Germany (DE) |
-| Platforms | LinkedIn, Indeed US | LinkedIn DE, Indeed DE, StepStone, Xing, Jobbörse |
-| Interface | CLI + MCP required | Built-in Web UI |
-| Language | English only | German + English |
-| Company Lists | US companies | German companies (SAP, Bosch, Siemens, etc.) |
-| Currency | USD | EUR |
-| OpenClaw Integration | No | Yes (WhatsApp control) |
+| Feature | Typical Tools | German Job Bot |
+|---------|-------------|----------------|
+| Target Market | US/International | 🇩🇪 Germany |
+| Platforms | LinkedIn only | LinkedIn, Indeed, StepStone, Xing, Jobbörse |
+| Language | English only | 🇩🇪 German + English |
+| Setup | Complex (MCP/API keys) | ⚡ Just run `npm start` |
+| Interface | CLI | 💬 Beautiful Web UI |
+| Privacy | Cloud-based | 🔒 100% Local |
 
-### Can apply-bot be used for German jobs?
+### What Makes Us Different
 
-**Limited** - You can manually search, but:
-- ❌ No German platform integration (StepStone, Xing, Jobbörse)
-- ❌ No German company whitelist
-- ❌ No EUR salary conventions
-- ❌ No German/English bilingual support
-- ❌ Requires MCP setup
+1. 🇩🇪 **German Job Market Focus**
+   - Native DE platform support (LinkedIn DE, Indeed DE, StepStone, Xing)
+   - German company database (SAP, Bosch, Siemens, Volkswagen, etc.)
+   - EUR salary standards with German tax brackets
 
-### Innovations of German Job Bot
+2. 🌐 **Bilingual**
+   - Full German + English interface
+   - German/English job search
+   - Localized cover letter templates
 
-1. 🇩🇪 **German Job Market Focus** - Native support for DE platforms
-2. 🎯 **German Company Database** - Pre-configured whitelist (SAP, Bosch, Siemens, Volkswagen, etc.)
-3. 💶 **EUR Salary Standards** - German salary ranges
-4. 🌐 **Bilingual** - Full DE/EN support
-5. 📱 **OpenClaw Integration** - Control via WhatsApp
-6. 🚀 **Out of the Box** - No MCP setup required - just run and use
-7. 💬 **Chat Interface** - Natural language like apply-bot but standalone
+3. 🚀 **Out of the Box**
+   - No MCP setup required
+   - No API keys needed
+   - Built-in web interface
+   - Just run `npm start` and go
+
+4. 💬 **Natural Language**
+   - Chat like ChatGPT
+   - "Find Python jobs in Berlin, Remote"
+   - Smart filtering without config files
+
+5. 📱 **Multi-Channel**
+   - Web interface
+   - OpenClaw/WhatsApp control (optional)
 
 ### Supported German Platforms
 
@@ -366,74 +373,6 @@ MIT Lizenz - see [LICENSE](LICENSE) Datei.
 | StepStone | 🚧 Coming |
 | Xing | 🚧 Coming |
 | Jobbörse | 🚧 Coming |
-
-### 🌟 Latest Features
-
-- **Real-time Job Search** - Search jobs directly from the web interface
-- **One-Click Apply** - Apply to jobs with a single click
-- **Application Tracking** - Track status of all applications (pending → applied → interview → rejected/offered)
-- **Resume Upload** - Upload PDF resumes directly
-- **Profile Management** - Save your profile info for quick applications
-- **Responsive Design** - Works on desktop and mobile
-
-### 🚀 Quick Start (Web Version)
-
-```bash
-# No installation needed - just run!
-npm install
-npm start
-```
-
-Then open **http://localhost:3001** in your browser.
-
-### 📱 Web Interface
-
-The web interface includes:
-
-1. **Search Tab** - Search for jobs by keywords, location
-2. **Jobs Tab** - View and track all your applications
-3. **Resume Tab** - Upload resume and manage profile
-4. **Settings** - App info and configuration
-
-### 🔧 API Endpoints
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/jobs` | GET | Get all jobs |
-| `/api/jobs` | POST | Add new job |
-| `/api/search` | POST | Search for jobs |
-| `/api/resume` | GET/POST | Get/save resume |
-| `/api/filters` | GET/POST | Get/save filters |
-
-### 🌍 Deployment
-
-#### Vercel (Recommended)
-
-```bash
-# Build the project
-npm run build
-
-# Deploy the dist folder to Vercel
-npx vercel deploy dist
-```
-
-#### Docker
-
-```dockerfile
-FROM node:20-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY dist/ ./dist/
-EXPOSE 3001
-CMD ["node", "server.js"]
-```
-
-### 📊 Stats
-
-- Total jobs tracked
-- Application success rate
-- Response time tracking
 
 ---
 
