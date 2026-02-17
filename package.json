@@ -1,6 +1,7 @@
 {
   "name": "german-job-bot",
   "version": "1.0.0",
+  "description": "AI-powered job application assistant for Germany",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

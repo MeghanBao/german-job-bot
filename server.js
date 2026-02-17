@@ -121,7 +121,7 @@ app.post('/api/jobs', (req, res) => {
       ...req.body,
       id: Date.now().toString(),
       appliedAt: new Date().toISOString().split('T')[0],
-      status: 'pending'
+      status: req.body.status || 'found'  // Use frontend's status, default to 'found'
     };
     data.jobs = [newJob, ...(data.jobs || [])];
     fs.writeFileSync(appliedJsonPath, JSON.stringify(data, null, 2));
@@ -282,13 +282,18 @@ app.post('/api/search', async (req, res) => {
     
     try {
       const data = JSON.parse(fs.readFileSync(logsJsonPath, 'utf-8'));
-      data.sessions = [{
+      const newLog = {
         type: 'search',
         message: `Search: ${keywords} in ${location} - Found ${jobs.length} jobs`,
         timestamp: new Date().toISOString()
-      }, ...(data.sessions || []).slice(0, 99)];
+      };
+      // Properly append to existing sessions
+      const existingSessions = data.sessions || [];
+      data.sessions = [newLog, ...existingSessions].slice(0, 100);
       fs.writeFileSync(logsJsonPath, JSON.stringify(data, null, 2));
-    } catch {}
+    } catch (e) {
+      console.error('Failed to write logs:', e);
+    }
     
     res.json({ success: true, jobs });
   } catch (error) {

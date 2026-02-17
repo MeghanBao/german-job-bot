@@ -61,11 +61,18 @@ cd german-job-bot
 # Install dependencies
 npm install
 
-# Start the app (frontend + backend)
+# Install Playwright browser (required for job search)
+npm run install-browser
+
+# Start the app (Express server + serves React frontend)
 npm start
 ```
 
 Then open **http://localhost:3001** in your browser.
+
+> 💡 **Note:** 
+> - `npm start` runs the Express server (port 3001) - USE THIS
+> - `npm run dev` runs Vite dev server (port 5173) - for development only
 
 That's it! The web interface includes:
 - 💬 Chat interface - talk to the bot naturally
@@ -259,7 +266,7 @@ npm run install-browser
 npm start
 ```
 
-Dann **http://localhost:5173** im Browser öffnen.
+Dann **http://localhost:3001** im Browser öffnen.
 
 ### Konfiguration
 
