@@ -1,0 +1,16 @@
+{
+  "prompts": [
+    {
+      "id": "default-cover-letter",
+      "name": "Default Cover Letter",
+      "content": "Generate a professional cover letter for a job application.\n\nJob Title: {{jobTitle}}\nCompany: {{company}}\nRequirements: {{requirements}}\n\nMy Background: {{resume}}\n\nGenerate a personalized cover letter in German or English depending on the job posting language. Focus on how my skills match their requirements.",
+      "isDefault": true
+    },
+    {
+      "id": "job-evaluation",
+      "name": "Job Evaluation",
+      "content": "Evaluate if I should apply to this job based on my preferences.\n\nJob: {{jobTitle}} at {{company}}\nDescription: {{description}}\nSalary: {{salary}}\nLocation: {{location}}\n\nMy Preferences:\n- Min Salary: {{minSalary}}\n- Locations: {{locations}}\n- Remote: {{remote}}\n\nShould I apply? Rate 1-10 and explain briefly.",
+      "isDefault": false
+    }
+  ]
+}

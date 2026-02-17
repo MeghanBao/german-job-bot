@@ -1,0 +1,148 @@
+{
+  "blacklist": {
+    "companies": [],
+    "keywords": [
+      "unpaid internship",
+      "commission only",
+      "must work weekends",
+      "on-call 24/7"
+    ],
+    "locations": [],
+    "industries": []
+  },
+  "whitelist": {
+    "companies": [
+      "SAP",
+      "Bosch",
+      "Siemens",
+      "Volkswagen",
+      "BMW",
+      "Mercedes-Benz",
+      "Allianz",
+      "Deutsche Telekom"
+    ],
+    "keywords": [
+      "remote-first",
+      "flexible hours",
+      "work-life balance",
+      "Visa sponsorship",
+      "Relocation support"
+    ],
+    "locations": [
+      "Berlin",
+      "München",
+      "Hamburg",
+      "Frankfurt",
+      "Remote",
+      "Germany"
+    ]
+  },
+  "salary": {
+    "min": 50000,
+    "max": 120000,
+    "target": 70000,
+    "currency": "EUR",
+    "includeEquity": false
+  },
+  "workType": {
+    "remote": true,
+    "hybrid": true,
+    "onsite": true,
+    "acceptOvertimeOccasionally": true
+  },
+  "jobRequirements": {
+    "minYearsExperience": 0,
+    "maxYearsExperience": 10,
+    "levels": [
+      "Junior",
+      "Mid-level",
+      "Senior",
+      "Lead"
+    ],
+    "excludeLevels": []
+  },
+  "techStack": {
+    "mustHave": [],
+    "niceToHave": [
+      "Python",
+      "JavaScript",
+      "TypeScript",
+      "React",
+      "Node.js",
+      "Docker",
+      "Kubernetes",
+      "AWS",
+      "PostgreSQL"
+    ],
+    "dealBreakers": []
+  },
+  "companyPreferences": {
+    "sizes": [
+      "Startup (1-50)",
+      "Medium (50-500)",
+      "Large (500+)"
+    ],
+    "types": [
+      "Product Company",
+      "SaaS",
+      "Tech Startup"
+    ],
+    "excludeTypes": [],
+    "fundingStage": [],
+    "minFunding": ""
+  },
+  "autoRules": {
+    "autoApply": {
+      "enabled": false,
+      "conditions": "Salary > 60000 AND (Remote OR Hybrid) AND Company in whitelist"
+    },
+    "autoSkip": {
+      "enabled": true,
+      "conditions": "Salary < 50000 OR Company in blacklist OR Contains dealbreaker keywords"
+    },
+    "requireManualReview": [
+      "Salary not disclosed",
+      "Early-stage startup (Seed/Series A)",
+      "Unclear job description"
+    ]
+  },
+  "benefits": {
+    "mustHave": [
+      "Health insurance",
+      "Paid time off (PTO)"
+    ],
+    "preferred": [
+      "Stock options",
+      "Annual bonus",
+      "Professional development budget",
+      "Home office stipend",
+      "Unlimited PTO",
+      "Parental leave"
+    ],
+    "dealBreakers": [
+      "No health insurance",
+      "Less than 20 days PTO"
+    ]
+  },
+  "visa": {
+    "requiresSponsorship": false,
+    "currentStatus": "EU Citizen",
+    "acceptsRemoteInternational": true,
+    "preferredCountries": [
+      "Germany",
+      "Austria",
+      "Switzerland",
+      "Netherlands",
+      "Remote (EU)"
+    ]
+  },
+  "other": {
+    "maxCommuteTimeMinutes": 60,
+    "acceptBusinessTravel": "Occasionally",
+    "acceptProbationPeriod": true,
+    "maxProbationMonths": 6,
+    "preferredTeamSize": "5-20 people",
+    "mustHaveModernDevTools": true
+  },
+  "notes": "AI Assistant: Please use these preferences to evaluate German job postings. Score each position and recommend whether I should apply, skip, or manually review. Consider all factors but prioritize: Remote work, Salary range, Tech stack match, and Company reputation."
+}
