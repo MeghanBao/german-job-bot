@@ -6,9 +6,18 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "vite"
+    "dev": "node server.js"
   },
-  "keywords": ["job", "求职", "germany", "automation", "ai"],
+  "keywords": [
+    "job",
+    "求职",
+    "germany",
+    "automation",
+    "ai"
+  ],
   "author": "Meghan",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
 }
