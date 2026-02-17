@@ -324,7 +324,48 @@ MIT Lizenz - see [LICENSE](LICENSE) Datei.
 
 ---
 
-## What's New (v1.1.0)
+## What's Different from apply-bot?
+
+### Comparison
+
+| Feature | apply-bot | German Job Bot |
+|---------|-----------|----------------|
+| Target Market | US/Canada | Germany (DE) |
+| Platforms | LinkedIn, Indeed US | LinkedIn DE, Indeed DE, StepStone, Xing, Jobbörse |
+| Interface | CLI + MCP required | Built-in Web UI |
+| Language | English only | German + English |
+| Company Lists | US companies | German companies (SAP, Bosch, Siemens, etc.) |
+| Currency | USD | EUR |
+| OpenClaw Integration | No | Yes (WhatsApp control) |
+
+### Can apply-bot be used for German jobs?
+
+**Limited** - You can manually search, but:
+- ❌ No German platform integration (StepStone, Xing, Jobbörse)
+- ❌ No German company whitelist
+- ❌ No EUR salary conventions
+- ❌ No German/English bilingual support
+- ❌ Requires MCP setup
+
+### Innovations of German Job Bot
+
+1. 🇩🇪 **German Job Market Focus** - Native support for DE platforms
+2. 🎯 **German Company Database** - Pre-configured whitelist (SAP, Bosch, Siemens, Volkswagen, etc.)
+3. 💶 **EUR Salary Standards** - German salary ranges
+4. 🌐 **Bilingual** - Full DE/EN support
+5. 📱 **OpenClaw Integration** - Control via WhatsApp
+6. 🚀 **Out of the Box** - No MCP setup required - just run and use
+7. 💬 **Chat Interface** - Natural language like apply-bot but standalone
+
+### Supported German Platforms
+
+| Platform | Status |
+|----------|--------|
+| LinkedIn DE | ✅ Search |
+| Indeed DE | ✅ Search |
+| StepStone | 🚧 Coming |
+| Xing | 🚧 Coming |
+| Jobbörse | 🚧 Coming |
 
 ### 🌟 Latest Features
 
