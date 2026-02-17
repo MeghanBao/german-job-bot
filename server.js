@@ -23,10 +23,20 @@ const resumeTxtPath = path.join(dataDir, 'resume.txt');
 const promptsJsonPath = path.join(dataDir, 'prompts.json');
 const logsJsonPath = path.join(dataDir, 'logs.json');
 const knowledgeJsonPath = path.join(dataDir, 'knowledge.json');
+const answersJsonPath = path.join(dataDir, 'answers.json');
+const runsDir = path.join(dataDir, 'runs');
 
 // Ensure data directory exists
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
+}
+if (!fs.existsSync(runsDir)) {
+  fs.mkdirSync(runsDir, { recursive: true });
+}
+
+// Generate unique run ID
+function generateRunId() {
+  return `run-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
 // Initialize data files with enhanced filters (like apply-bot)
@@ -131,6 +141,79 @@ initDataFile('prompts.json', {
 });
 initDataFile('logs.json', { sessions: [] });
 initDataFile('knowledge.json', { entries: [] });
+
+// Answers library - for field normalization and reusable answers
+initDataFile('answers.json', {
+  fields: [
+    {
+      normalizedKey: 'work_authorization',
+      displayName: 'Work Authorization',
+      fieldType: 'select',
+      riskLevel: 'high',
+      answers: [
+        { value: 'eu_citizen', label: 'EU Citizen', text: 'I have unrestricted work authorization in Germany as an EU citizen.' },
+        { value: 'blue_card', label: 'EU Blue Card', text: 'I hold an EU Blue Card valid for Germany.' },
+        { value: 'work_permit', label: 'Work Permit', text: 'I have a valid German work permit.' }
+      ]
+    },
+    {
+      normalizedKey: 'notice_period',
+      displayName: 'Notice Period',
+      fieldType: 'text',
+      riskLevel: 'medium',
+      answers: [
+        { value: 'immediate', label: 'Immediate', text: 'I am available immediately.' },
+        { value: '2_weeks', label: '2 Weeks', text: 'My notice period is 2 weeks.' },
+        { value: '1_month', label: '1 Month', text: 'My notice period is 1 month.' },
+        { value: '3_months', label: '3 Months', text: 'My notice period is 3 months.' }
+      ]
+    },
+    {
+      normalizedKey: 'salary_expectation',
+      displayName: 'Salary Expectation',
+      fieldType: 'number',
+      riskLevel: 'medium',
+      defaultTemplate: 'Meine Gehaltserwartung liegt bei {{value}} EUR pro Jahr.'
+    },
+    {
+      normalizedKey: 'relocation',
+      displayName: 'Relocation',
+      fieldType: 'select',
+      riskLevel: 'low',
+      answers: [
+        { value: 'yes', label: 'Yes', text: 'I am willing to relocate to Germany.' },
+        { value: 'no', label: 'No', text: 'I prefer remote or would need visa sponsorship.' }
+      ]
+    },
+    {
+      normalizedKey: 'language_level_de',
+      displayName: 'German Level',
+      fieldType: 'select',
+      riskLevel: 'medium',
+      answers: [
+        { value: 'native', label: 'Native', text: 'German is my native language.' },
+        { value: 'c2', label: 'C2', text: 'C2 - Fluent ( Goethe Zertifikat C2 )' },
+        { value: 'c1', label: 'C1', text: 'C1 - Advanced' },
+        { value: 'b2', label: 'B2', text: 'B2 - Upper Intermediate' },
+        { value: 'b1', label: 'B1', text: 'B1 - Intermediate' },
+        { value: 'a2', label: 'A2', text: 'A2 - Basic' },
+        { value: 'none', label: 'None', text: 'No German knowledge, English only.' }
+      ]
+    },
+    {
+      normalizedKey: 'work_type',
+      displayName: 'Work Type',
+      fieldType: 'select',
+      riskLevel: 'low',
+      answers: [
+        { value: 'remote', label: 'Remote', text: 'I prefer fully remote work.' },
+        { value: 'hybrid', label: 'Hybrid', text: 'I am open to hybrid work (2-3 days office).' },
+        { value: 'onsite', label: 'On-site', text: 'I am willing to work on-site.' }
+      ]
+    }
+  ],
+  pendingQuestions: []
+});
 
 // Multer config for file uploads
 const upload = multer({
@@ -435,6 +518,211 @@ app.post('/api/logs', (req, res) => {
     res.json({ success: true });
   } catch {
     res.status(500).json({ error: 'Failed to save log' });
+  }
+});
+
+// ============ Runs API (Action Logging) ============
+
+// Create a new run
+app.post('/api/runs', (req, res) => {
+  try {
+    const { jobId, jobTitle, platform, url } = req.body;
+    const runId = generateRunId();
+    const run = {
+      id: runId,
+      jobId,
+      jobTitle,
+      platform,
+      url,
+      status: 'running', // running, completed, failed, paused
+      createdAt: new Date().toISOString(),
+      actions: [],
+      screenshotDir: `screenshots/${runId}`
+    };
+    
+    // Save run
+    const runPath = path.join(runsDir, `${runId}.json`);
+    fs.writeFileSync(runPath, JSON.stringify(run, null, 2));
+    
+    // Create screenshots directory
+    const screenshotsDir = path.join(runsDir, runId);
+    if (!fs.existsSync(screenshotsDir)) {
+      fs.mkdirSync(screenshotsDir, { recursive: true });
+    }
+    
+    res.json({ success: true, runId, run });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to create run' });
+  }
+});
+
+// Get all runs
+app.get('/api/runs', (req, res) => {
+  try {
+    const files = fs.readdirSync(runsDir).filter(f => f.endsWith('.json'));
+    const runs = files.map(f => {
+      const data = JSON.parse(fs.readFileSync(path.join(runsDir, f), 'utf-8'));
+      return {
+        id: data.id,
+        jobTitle: data.jobTitle,
+        platform: data.platform,
+        status: data.status,
+        createdAt: data.createdAt,
+        actionCount: data.actions?.length || 0
+      };
+    });
+    res.json(runs);
+  } catch (e) {
+    res.json([]);
+  }
+});
+
+// Get single run
+app.get('/api/runs/:id', (req, res) => {
+  try {
+    const runPath = path.join(runsDir, `${req.params.id}.json`);
+    if (fs.existsSync(runPath)) {
+      res.json(JSON.parse(fs.readFileSync(runPath, 'utf-8')));
+    } else {
+      res.status(404).json({ error: 'Run not found' });
+    }
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to get run' });
+  }
+});
+
+// Log action to run
+app.post('/api/runs/:id/actions', (req, res) => {
+  try {
+    const runPath = path.join(runsDir, `${req.params.id}.json`);
+    if (!fs.existsSync(runPath)) {
+      return res.status(404).json({ error: 'Run not found' });
+    }
+    
+    const run = JSON.parse(fs.readFileSync(runPath, 'utf-8'));
+    const action = {
+      step: run.actions.length + 1,
+      type: req.body.type, // click, type, navigate, wait, screenshot
+      selector: req.body.selector,
+      value: req.body.value,
+      result: req.body.result, // success, failed, pending
+      error: req.body.error,
+      screenshot: req.body.screenshot, // filename
+      timestamp: new Date().toISOString()
+    };
+    
+    run.actions.push(action);
+    fs.writeFileSync(runPath, JSON.stringify(run, null, 2));
+    
+    res.json({ success: true, action });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to log action' });
+  }
+});
+
+// Update run status
+app.put('/api/runs/:id', (req, res) => {
+  try {
+    const runPath = path.join(runsDir, `${req.params.id}.json`);
+    if (!fs.existsSync(runPath)) {
+      return res.status(404).json({ error: 'Run not found' });
+    }
+    
+    const run = JSON.parse(fs.readFileSync(runPath, 'utf-8'));
+    run.status = req.body.status;
+    run.completedAt = new Date().toISOString();
+    fs.writeFileSync(runPath, JSON.stringify(run, null, 2));
+    
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to update run' });
+  }
+});
+
+// ============ Answers API ============
+
+app.get('/api/answers', (req, res) => {
+  try {
+    res.json(JSON.parse(fs.readFileSync(answersJsonPath, 'utf-8')));
+  } catch {
+    res.json({ fields: [], pendingQuestions: [] });
+  }
+});
+
+app.post('/api/answers', (req, res) => {
+  try {
+    const data = JSON.parse(fs.readFileSync(answersJsonPath, 'utf-8'));
+    const answer = {
+      id: `ans-${Date.now()}`,
+      normalizedKey: req.body.normalizedKey,
+      value: req.body.value,
+      text: req.body.text,
+      label: req.body.label,
+      createdAt: new Date().toISOString()
+    };
+    data.fields = data.fields.map(f => {
+      if (f.normalizedKey === req.body.normalizedKey) {
+        return {
+          ...f,
+          answers: [...(f.answers || []), answer]
+        };
+      }
+      return f;
+    });
+    fs.writeFileSync(answersJsonPath, JSON.stringify(data, null, 2));
+    res.json({ success: true, answer });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to save answer' });
+  }
+});
+
+// Pending Questions API
+app.get('/api/pending-questions', (req, res) => {
+  try {
+    const data = JSON.parse(fs.readFileSync(answersJsonPath, 'utf-8'));
+    res.json(data.pendingQuestions || []);
+  } catch {
+    res.json([]);
+  }
+});
+
+app.post('/api/pending-questions', (req, res) => {
+  try {
+    const data = JSON.parse(fs.readFileSync(answersJsonPath, 'utf-8'));
+    const question = {
+      id: `q-${Date.now()}`,
+      runId: req.body.runId,
+      jobId: req.body.jobId,
+      platform: req.body.platform,
+      fieldName: req.body.fieldName,
+      normalizedKey: req.body.normalizedKey,
+      riskLevel: req.body.riskLevel || 'medium',
+      screenshot: req.body.screenshot,
+      suggestedAnswer: req.body.suggestedAnswer,
+      status: 'pending', // pending, resolved
+      createdAt: new Date().toISOString()
+    };
+    data.pendingQuestions = [question, ...(data.pendingQuestions || [])];
+    fs.writeFileSync(answersJsonPath, JSON.stringify(data, null, 2));
+    res.json({ success: true, question });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to save pending question' });
+  }
+});
+
+app.put('/api/pending-questions/:id', (req, res) => {
+  try {
+    const data = JSON.parse(fs.readFileSync(answersJsonPath, 'utf-8'));
+    data.pendingQuestions = data.pendingQuestions.map(q => {
+      if (q.id === req.params.id) {
+        return { ...q, ...req.body, resolvedAt: new Date().toISOString() };
+      }
+      return q;
+    });
+    fs.writeFileSync(answersJsonPath, JSON.stringify(data, null, 2));
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to update pending question' });
   }
 });
 
