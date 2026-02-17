@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "german-job-bot": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-playwright"
+      ]
+    }
+  }
+}

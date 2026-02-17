@@ -27,6 +27,7 @@
 - ✉️ **Cover Letter Generation** - AI-generated personalized cover letters
 - 📝 **Session Logging** - Detailed logs of AI actions and reasoning
 - 🎨 **Modern Web UI** - Beautiful chat-based interface with real-time updates
+- 🤖 **MCP Compatible** - Use with Claude Desktop, Cursor, VSCode for AI control
 
 ### Advanced Filtering
 
@@ -407,6 +408,75 @@ MIT Lizenz - see [LICENSE](LICENSE) Datei.
 | Jobbörse | ✅ Ready | Real job search with browser automation |
 
 > Note: Real search requires you to be logged into the platforms. The browser runs in non-headless mode so you can log in once.
+
+---
+
+## 🔌 MCP Integration (Optional)
+
+Use German Job Bot with Claude Desktop, Cursor, or VSCode for AI-powered control!
+
+### Prerequisites
+
+```bash
+# Install Playwright (if not already done)
+npm run install-browser
+```
+
+### Setup
+
+#### 1. Claude Desktop
+
+Add this to `~/Library/Application Support/Claude/claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "german-job-bot": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-playwright"]
+    }
+  }
+}
+```
+
+#### 2. Cursor / VSCode
+
+Add to `.cursor/mcp.json` or `.vscode/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "german-job-bot": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-playwright"]
+    }
+  }
+}
+```
+
+#### 3. Start the bot
+
+```bash
+npm start
+```
+
+Then restart Claude/Cursor. You can now use natural language:
+
+```
+"Search for Python jobs in Berlin on LinkedIn"
+"Find remote data science positions"
+"Apply to the first SAP job you found"
+```
+
+### Available MCP Tools
+
+When connected via MCP, you can use:
+
+- `browser_navigate` - Navigate to a URL
+- `browser_click` - Click an element
+- `browser_type` - Type text
+- `browser_screenshot` - Take a screenshot
+- `browser_evaluate` - Run JavaScript
 
 ---
 
