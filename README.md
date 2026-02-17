@@ -320,6 +320,78 @@ MIT Lizenz - see [LICENSE](LICENSE) Datei.
 
 ---
 
+## What's New (v1.1.0)
+
+### 🌟 Latest Features
+
+- **Real-time Job Search** - Search jobs directly from the web interface
+- **One-Click Apply** - Apply to jobs with a single click
+- **Application Tracking** - Track status of all applications (pending → applied → interview → rejected/offered)
+- **Resume Upload** - Upload PDF resumes directly
+- **Profile Management** - Save your profile info for quick applications
+- **Responsive Design** - Works on desktop and mobile
+
+### 🚀 Quick Start (Web Version)
+
+```bash
+# No installation needed - just run!
+npm install
+npm start
+```
+
+Then open **http://localhost:3001** in your browser.
+
+### 📱 Web Interface
+
+The web interface includes:
+
+1. **Search Tab** - Search for jobs by keywords, location
+2. **Jobs Tab** - View and track all your applications
+3. **Resume Tab** - Upload resume and manage profile
+4. **Settings** - App info and configuration
+
+### 🔧 API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/jobs` | GET | Get all jobs |
+| `/api/jobs` | POST | Add new job |
+| `/api/search` | POST | Search for jobs |
+| `/api/resume` | GET/POST | Get/save resume |
+| `/api/filters` | GET/POST | Get/save filters |
+
+### 🌍 Deployment
+
+#### Vercel (Recommended)
+
+```bash
+# Build the project
+npm run build
+
+# Deploy the dist folder to Vercel
+npx vercel deploy dist
+```
+
+#### Docker
+
+```dockerfile
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY dist/ ./dist/
+EXPOSE 3001
+CMD ["node", "server.js"]
+```
+
+### 📊 Stats
+
+- Total jobs tracked
+- Application success rate
+- Response time tracking
+
+---
+
 **Haftungsausschluss**: Bitte nutze das Tool verantwortungsvoll und beachte die Nutzungsbedingungen der Jobplattformen. Übermäßige Bewerbungen in kurzer Zeit vermeiden.
 
 **Disclaimer**: Use responsibly and comply with platform terms of service. Do not make excessive applications in a short period of time.
