@@ -77,6 +77,24 @@ const upload = multer({
 app.use(cors());
 app.use(express.json());
 
+// Landing page route
+app.get('/', (req, res) => {
+  const landingPath = path.join(__dirname, 'public', 'landing.html');
+  if (fs.existsSync(landingPath)) {
+    res.sendFile(landingPath);
+  } else {
+    // Fallback to index.html (React app)
+    const indexPath = path.join(__dirname, 'public', 'index.html');
+    res.sendFile(indexPath);
+  }
+});
+
+// App route (React)
+app.get('/app', (req, res) => {
+  const indexPath = path.join(__dirname, 'public', 'index.html');
+  res.sendFile(indexPath);
+});
+
 // Serve static files from dist or public
 const staticPath = path.join(__dirname, 'dist');
 if (fs.existsSync(staticPath)) {
