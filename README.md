@@ -1,106 +1,154 @@
 # German Job Bot 🇩🇪
 
-> AI-powered 自动申请德国工作
+> AI-powered automated job application assistant for Germany
 
-[English](#english) | [中文](#中文)
+[English](#english) | [Deutsch](#deutsch)
 
 ---
 
 ## English
 
-AI-powered job application assistant for German job markets. Automatically search and apply to jobs on LinkedIn, Indeed, StepStone, Xing, and more.
-
 ### Features
 
 - 🔍 **Smart Search** - Natural language job search
-- 🤖 **Auto Apply** - Automatic application submission
-- 📊 **Tracking** - Track all applications in one place
+- 🤖 **Auto Apply** - Automatic application submission  
+- 📊 **Tracking** - Track all applications in one dashboard
 - ✉️ **Cover Letter** - AI-generated personalized cover letters
-- 🔒 **Privacy** - All data stored locally
-- 🌐 **Multi-platform** - LinkedIn, Indeed, StepStone, Xing
+- 🔒 **Privacy** - All data stored locally on your machine
+- 🌐 **Multi-platform** - LinkedIn, Indeed, StepStone, Xing, Jobbörse
+
+### Supported Platforms
+
+| Platform | Website | Status |
+|----------|---------|--------|
+| LinkedIn | linkedin.com | 🚧 Coming soon |
+| Indeed | indeed.de | 🚧 Coming soon |
+| StepStone | stepstone.de | 🚧 Coming soon |
+| Xing | xing.de | 🚧 Coming soon |
+| Jobbörse | jobboerse.arbeitsagentur.de | 🚧 Coming soon |
 
 ### Quick Start
 
 ```bash
-# Clone
-git clone https://github.com/YOUR_USERNAME/german-job-bot.git
+# Clone the repository
+git clone https://github.com/MeghanBao/german-job-bot.git
 cd german-job-bot
 
-# Install
+# Install dependencies
 npm install
 
-# Start
+# Start the application
 npm start
 ```
 
-Open http://localhost:3001
+Then open **http://localhost:3001** in your browser.
 
-### Configuration
+### How to Use
 
-1. Set your search filters in the web UI
-2. Upload your resume
-3. Give commands like: "Search Python jobs in Berlin"
+1. **Configure Filters** - Set your job search criteria (keywords, location, salary)
+2. **Upload Resume** - Fill in your profile information
+3. **Give Commands** - Type something like:
+   - "Search Python developer jobs in Berlin"
+   - "Find remote data science positions"
+   - "Apply to software engineer roles with visa sponsorship"
+
+4. **Track Applications** - View all your applications in the dashboard
+
+### Configuration Options
+
+```json
+{
+  "keywords": ["Python", "Backend", "Data Science"],
+  "locations": ["Berlin", "Remote", "München"],
+  "salaryMin": 60000,
+  "requireVisa": true,
+  "blacklistCompanies": []
+}
+```
 
 ### Tech Stack
 
-- Frontend: React + Tailwind CSS
-- Backend: Express.js
-- Browser: Playwright
+- **Frontend:** React + Tailwind CSS
+- **Backend:** Express.js (Node.js)
+- **Browser:** Playwright (for automation)
 
-### Supported Platforms
+### Project Structure
 
-| Platform | URL |
-|----------|-----|
-| LinkedIn | linkedin.com |
-| Indeed | indeed.de |
-| StepStone | stepstone.de |
-| Xing | xing.de |
+```
+german-job-bot/
+├── server.js          # Express backend API
+├── public/
+│   └── index.html    # React frontend
+├── data/
+│   ├── applied.json  # Job applications
+│   ├── filters.json  # Search filters
+│   ├── resume.json   # Your resume data
+│   └── logs.json     # Activity logs
+└── src/              # Source files (optional)
+```
+
+### License
+
+MIT License - see [LICENSE](LICENSE) file.
 
 ---
 
-## 中文
+## Deutsch
 
-AI 驱动的德国求职自动申请助手。自动在 LinkedIn、Indeed、StepStone、Xing 等平台搜索和申请工作。
+### Funktionen
 
-### 功能
+- 🔍 **Intelligente Suche** - Natürliche Sprachsuche für Jobs
+- 🤖 **Auto-Bewerbung** - Automatische Bewerbungsabsendung
+- 📊 **Verfolgung** - Alle Bewerbungen im Dashboard verfolgen
+- ✉️ **Anschreiben** - KI-gestützte personalisierte Anschreiben
+- 🔒 **Datenschutz** - Alle Daten lokal gespeichert
+- 🌐 **Multi-Plattform** - LinkedIn, Indeed, StepStone, Xing, Jobbörse
 
-- 🔍 智能搜索 - 自然语言工作搜索
-- 🤖 自动申请 - 自动提交申请
-- 📊 跟踪 - 在一个地方跟踪所有申请
-- ✉️ 求职信 - AI 生成个性化求职信
-- 🔒 隐私 - 所有数据本地存储
-- 🌐 多平台 - LinkedIn、Indeed、StepStone、Xing
+### Unterstützte Plattformen
 
-### 快速开始
+| Plattform | Website | Status |
+|-----------|---------|--------|
+| LinkedIn | linkedin.com | 🚧 Bald verfügbar |
+| Indeed | indeed.de | 🚧 Bald verfügbar |
+| StepStone | stepstone.de | 🚧 Bald verfügbar |
+| Xing | xing.de | 🚧 Bald verfügbar |
+| Jobbörse | jobboerse.arbeitsagentur.de | 🚧 Bald verfügbar |
+
+### Schnellstart
 
 ```bash
-# 克隆
-git clone https://github.com/YOUR_USERNAME/german-job-bot.git
+# Repository klonen
+git clone https://github.com/MeghanBao/german-job-bot.git
 cd german-job-bot
 
-# 安装
+# Abhängigkeiten installieren
 npm install
 
-# 启动
+# Anwendung starten
 npm start
 ```
 
-打开 http://localhost:3001
+Dann **http://localhost:3001** im Browser öffnen.
 
-### 配置
+### Verwendung
 
-1. 在网页 UI 中设置搜索过滤器
-2. 上传你的简历
-3. 输入命令，例如："搜索柏林的 Python 工作"
+1. **Filter konfigurieren** - Suchkriterien festlegen (Stichworte, Ort, Gehalt)
+2. **Lebenslauf hochladen** - Profilinformationen ausfüllen
+3. **Befehle eingeben** - z.B.:
+   - "Suche Python Entwickler Jobs in Berlin"
+   - "Finde Remote Data Science Stellen"
+   - "Bewirb dich auf Software Engineer Positionen mit Visa-Sponsorship"
 
-### 技术栈
+4. **Bewerbungen verfolgen** - Alle Bewerbungen im Dashboard ansehen
 
-- 前端: React + Tailwind CSS
-- 后端: Express.js
-- 浏览器: Playwright
+### Lizenz
+
+MIT Lizenz - see [LICENSE](LICENSE) Datei.
 
 ---
 
-## License
+## ⚠️ Disclaimer
 
-MIT
+This tool is for educational purposes. Please comply with the Terms of Service of the job platforms you use. Do not make excessive applications in a short period of time.
+
+Dieses Tool dient Bildungszwecken. Bitte beachten Sie die Nutzungsbedingungen der verwendeten Jobportale. Übermäßige Bewerbungen in kurzer Zeit vermeiden.
