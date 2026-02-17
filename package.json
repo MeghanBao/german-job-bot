@@ -1,0 +1,14 @@
+{
+  "name": "german-job-bot",
+  "version": "1.0.0",
+  "description": "AI-powered German job application assistant",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "vite"
+  },
+  "keywords": ["job", "求职", "germany", "automation", "ai"],
+  "author": "Meghan",
+  "license": "MIT"
+}
