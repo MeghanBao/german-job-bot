@@ -119,6 +119,34 @@ function App() {
     } catch (e) { console.error(e); }
   };
 
+  const applyToJob = async (job: Job) => {
+    if (!job.url || job.url === '#') {
+      alert('No URL available for this job');
+      return;
+    }
+    try {
+      const res = await fetch('/api/apply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jobUrl: job.url,
+          platform: job.platform,
+          resumePath: 'data/resume.pdf'
+        })
+      });
+      const result = await res.json();
+      if (result.success) {
+        updateJobStatus(job.id, 'applied');
+        alert('✅ Application submitted successfully!');
+      } else {
+        alert('❌ ' + result.message);
+      }
+    } catch (e) {
+      console.error(e);
+      alert('❌ Failed to apply');
+    }
+  };
+
   const stats = {
     total: jobs.length,
     applied: jobs.filter(j => j.status === 'applied').length,
@@ -313,7 +341,15 @@ function App() {
                           <div className="text-green-400 text-sm mt-1">{job.salary}</div>
                         )}
                       </div>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
+                        {job.status === 'found' && (
+                          <button
+                            onClick={() => applyToJob(job)}
+                            className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg text-sm font-medium"
+                          >
+                            Apply
+                          </button>
+                        )}
                         <select
                           value={job.status}
                           onChange={(e) => updateJobStatus(job.id, e.target.value)}

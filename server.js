@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import multer from 'multer';
+import { browserService } from './src/lib/browser.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -83,7 +84,6 @@ app.get('/', (req, res) => {
   if (fs.existsSync(landingPath)) {
     res.sendFile(landingPath);
   } else {
-    // Fallback to index.html (React app)
     const indexPath = path.join(__dirname, 'public', 'index.html');
     res.sendFile(indexPath);
   }
@@ -244,62 +244,72 @@ app.post('/api/logs', (req, res) => {
   }
 });
 
-// ============ Search API (Mock - for demo) ============
+// ============ Search API (Real browser automation) ============
 
-app.post('/api/search', (req, res) => {
-  const { keywords, location, platform } = req.body;
+app.post('/api/search', async (req, res) => {
+  const { keywords, location = 'Germany', platform } = req.body;
   
-  // Mock job results for demonstration
-  const mockJobs = [
-    {
-      id: `job-${Date.now()}-1`,
-      title: 'Software Engineer (m/w/d)',
-      company: 'SAP',
-      platform: platform || 'LinkedIn',
-      location: location || 'Berlin',
-      salary: '€70,000 - €90,000',
-      description: 'Entwickle innovative Software-Lösungen...',
-      url: '#',
-      status: 'search'
-    },
-    {
-      id: `job-${Date.now()}-2`,
-      title: 'Python Developer',
-      company: 'Bosch',
-      platform: platform || 'Indeed',
-      location: location || 'München',
-      salary: '€65,000 - €85,000',
-      description: 'Python, Django, Docker...',
-      url: '#',
-      status: 'search'
-    },
-    {
-      id: `job-${Date.now()}-3`,
-      title: 'Data Scientist',
-      company: 'Siemens',
-      platform: platform || 'StepStone',
-      location: location || 'Berlin',
-      salary: '€75,000 - €95,000',
-      description: 'Machine Learning, AI, Python...',
-      url: '#',
-      status: 'search'
-    }
-  ];
+  console.log(`🔍 Searching for "${keywords}" in ${location}...`);
   
-  // Log the search
   try {
-    const data = JSON.parse(fs.readFileSync(logsJsonPath, 'utf-8'));
-    data.sessions = [{
-      type: 'search',
-      message: `Search: ${keywords} in ${location}`,
-      timestamp: new Date().toISOString()
-    }, ...(data.sessions || []).slice(0, 99)];
-    fs.writeFileSync(logsJsonPath, JSON.stringify(data, null, 2));
-  } catch {}
+    let jobs = [];
+    
+    if (platform && platform !== 'all') {
+      switch (platform.toLowerCase()) {
+        case 'linkedin':
+          jobs = await browserService.searchLinkedIn(keywords, location);
+          break;
+        case 'indeed':
+          jobs = await browserService.searchIndeedDE(keywords, location);
+          break;
+        case 'stepstone':
+          jobs = await browserService.searchStepStone(keywords, location);
+          break;
+        case 'xing':
+          jobs = await browserService.searchXing(keywords, location);
+          break;
+        case 'jobboerse':
+          jobs = await browserService.searchJobboerse(keywords, location);
+          break;
+        default:
+          jobs = await browserService.searchAll(keywords, location);
+      }
+    } else {
+      jobs = await browserService.searchAll(keywords, location);
+    }
+    
+    jobs = jobs.map(job => ({ ...job, status: 'found' }));
+    
+    try {
+      const data = JSON.parse(fs.readFileSync(logsJsonPath, 'utf-8'));
+      data.sessions = [{
+        type: 'search',
+        message: `Search: ${keywords} in ${location} - Found ${jobs.length} jobs`,
+        timestamp: new Date().toISOString()
+      }, ...(data.sessions || []).slice(0, 99)];
+      fs.writeFileSync(logsJsonPath, JSON.stringify(data, null, 2));
+    } catch {}
+    
+    res.json({ success: true, jobs });
+  } catch (error) {
+    console.error('Search error:', error);
+    res.status(500).json({ error: 'Search failed', message: error.message });
+  }
+});
+
+// ============ Apply to Job API ============
+
+app.post('/api/apply', async (req, res) => {
+  const { jobUrl, resumePath, platform } = req.body;
   
-  setTimeout(() => {
-    res.json({ success: true, jobs: mockJobs });
-  }, 1000); // Simulate search delay
+  console.log(`📤 Applying to ${jobUrl}...`);
+  
+  try {
+    const result = await browserService.autoApply(jobUrl, resumePath, platform);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 });
 
 // ============ SPA Fallback ============

@@ -378,6 +378,51 @@ MIT Lizenz - see [LICENSE](LICENSE) Datei.
 
 ---
 
+## 🚀 Deployment
+
+### Option 1: Vercel (Frontend only, no browser automation)
+
+```bash
+npm run build
+npx vercel deploy dist
+```
+
+Note: Browser automation won't work on Vercel (serverless limitation).
+
+### Option 2: Render / Railway / Fly.io (Recommended)
+
+```bash
+# Deploy with Docker
+npx vercel deploy --prod --docker
+```
+
+Or connect your GitHub repo to:
+- [Render.com](https://render.com) - Free tier available
+- [Railway.app](https://railway.app) - Free tier available
+- [Fly.io](https://fly.io) - Good for Docker
+
+### Option 3: Docker Local
+
+```bash
+# Build
+docker build -t german-job-bot .
+
+# Run
+docker run -p 3001:3001 german-job-bot
+```
+
+### Option 4: Traditional Server
+
+```bash
+# Build frontend
+npm run build
+
+# Start server
+NODE_ENV=production npm start
+```
+
+---
+
 **Haftungsausschluss**: Bitte nutze das Tool verantwortungsvoll und beachte die Nutzungsbedingungen der Jobplattformen. Übermäßige Bewerbungen in kurzer Zeit vermeiden.
 
 **Disclaimer**: Use responsibly and comply with platform terms of service. Do not make excessive applications in a short period of time.
