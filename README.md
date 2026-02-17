@@ -152,7 +152,7 @@ Type commands like:
 - **Frontend**: React + TypeScript + Tailwind CSS + Vite
 - **Backend**: Express.js
 - **Browser Automation**: Playwright
-- **AI**: Any MCP-compatible LLM (OpenAI, Claude, etc.)
+- **AI**: Claude, Cursor, or any MCP-compatible tool (Claude Desktop, Cursor, VSCode, Windsurf, OpenClaw)
 
 ### Project Structure
 
@@ -339,7 +339,7 @@ Befehle wie:
 - **Frontend**: React + TypeScript + Tailwind CSS + Vite
 - **Backend**: Express.js
 - **Browser-Automatisierung**: Playwright
-- **KI**: Jeder MCP-kompatible LLM (OpenAI, Claude, etc.)
+- **KI**: Claude, Cursor, oder jedes MCP-kompatible Tool (Claude Desktop, Cursor, VSCode, Windsurf, OpenClaw)
 
 ### Mitmachen
 
