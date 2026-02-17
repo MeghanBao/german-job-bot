@@ -19,12 +19,37 @@
 - 🌐 **Multi-Platform Support** - Works with LinkedIn, Indeed, StepStone, Xing, Jobbörse
 - 🤖 **Real Browser Integration** - Uses Playwright for browser automation
 - 🔒 **Privacy-First** - All data stored locally on your machine
-- 🎯 **Smart Filtering** - Whitelist/blacklist companies, salary filters, visa support
+- 🎯 **Smart Filtering** - Advanced filters (blacklist/whitelist companies, salary, tech stack, visa)
 - 📊 **Application Tracking** - Track all submissions in one dashboard
-- 📝 **Resume Parsing** - Upload PDF, auto-parse to text
+- 📝 **Resume PDF Parsing** - Upload PDF, auto-parse to text for AI
+- 📚 **Custom Prompts** - Save and manage different AI prompt templates
+- 🧠 **Knowledge Base** - Store Q&A for AI to learn from
 - ✉️ **Cover Letter Generation** - AI-generated personalized cover letters
 - 📝 **Session Logging** - Detailed logs of AI actions and reasoning
 - 🎨 **Modern Web UI** - Beautiful chat-based interface with real-time updates
+
+### Advanced Filtering
+
+Similar to apply-bot, German Job Bot supports detailed filters:
+
+```json
+{
+  "blacklist": {
+    "companies": [],
+    "keywords": ["commission only", "must work weekends"]
+  },
+  "whitelist": {
+    "companies": ["SAP", "Bosch", "Siemens"],
+    "keywords": ["remote-first", "flexible hours"]
+  },
+  "salary": { "min": 50000, "max": 120000, "currency": "EUR" },
+  "workType": { "remote": true, "hybrid": true, "onsite": true },
+  "techStack": {
+    "mustHave": ["Python", "JavaScript", "React"],
+    "niceToHave": ["Node.js", "AWS", "Docker"]
+  }
+}
+```
 
 ### Supported Platforms
 

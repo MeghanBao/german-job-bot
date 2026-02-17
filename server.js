@@ -19,15 +19,17 @@ const filtersJsonPath = path.join(dataDir, 'filters.json');
 const jobFiltersJsonPath = path.join(dataDir, 'job-filters.json');
 const resumeJsonPath = path.join(dataDir, 'resume.json');
 const resumeMetaPath = path.join(dataDir, 'resume-meta.json');
+const resumeTxtPath = path.join(dataDir, 'resume.txt');
 const promptsJsonPath = path.join(dataDir, 'prompts.json');
 const logsJsonPath = path.join(dataDir, 'logs.json');
+const knowledgeJsonPath = path.join(dataDir, 'knowledge.json');
 
 // Ensure data directory exists
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
 }
 
-// Initialize data files
+// Initialize data files with enhanced filters (like apply-bot)
 const initDataFile = (filename, defaultData) => {
   const filepath = path.join(dataDir, filename);
   if (!fs.existsSync(filepath)) {
@@ -37,24 +39,98 @@ const initDataFile = (filename, defaultData) => {
 };
 
 initDataFile('applied.json', { jobs: [] });
+
+// Enhanced filters - inspired by apply-bot
 initDataFile('filters.json', {
   keywords: [],
   locations: ['Germany'],
-  salaryMin: 0,
+  salaryMin: 50000,
   requireVisa: false,
   blacklistCompanies: [],
-  whitelistCompanies: []
+  whitelistCompanies: ['SAP', 'Bosch', 'Siemens', 'Volkswagen', 'BMW', 'Mercedes']
 });
+
+// Detailed job filters - like apply-bot
 initDataFile('job-filters.json', {
-  blacklist: { companies: [], keywords: [] },
-  whitelist: { companies: ['SAP', 'Bosch', 'Siemens'] },
-  salary: { min: 50000, max: 120000 },
-  workType: { remote: true, hybrid: true, onsite: true },
-  visa: { requiresSponsorship: false }
+  blacklist: {
+    companies: [],
+    keywords: ['unpaid internship', 'commission only', 'must work weekends'],
+    locations: [],
+    industries: []
+  },
+  whitelist: {
+    companies: ['SAP', 'Bosch', 'Siemens', 'Volkswagen', 'BMW', 'Mercedes', 'Allianz', 'Deutsche Telekom'],
+    keywords: ['remote-first', 'flexible hours', 'work-life balance'],
+    locations: ['Germany', 'Berlin', 'München', 'Remote']
+  },
+  salary: {
+    min: 50000,
+    max: 120000,
+    target: 70000,
+    currency: 'EUR'
+  },
+  workType: {
+    remote: true,
+    hybrid: true,
+    onsite: true
+  },
+  jobRequirements: {
+    levels: ['Mid-level', 'Senior', 'Staff', 'Principal'],
+    excludeLevels: ['Intern', 'Entry-level', 'Junior']
+  },
+  techStack: {
+    mustHave: ['Python', 'JavaScript', 'TypeScript', 'React'],
+    niceToHave: ['Node.js', 'PostgreSQL', 'AWS', 'Docker'],
+    dealBreakers: []
+  },
+  companyPreferences: {
+    sizes: ['Medium (100-500)', 'Large (500+)'],
+    types: ['Product Company', 'SaaS', 'Tech Startup']
+  },
+  autoRules: {
+    autoApply: { enabled: false },
+    autoSkip: { enabled: true }
+  },
+  benefits: {
+    mustHave: ['Health insurance', ' Pension', 'Paid time off'],
+    preferred: ['Stock options', 'Annual bonus', 'Home office stipend']
+  },
+  visa: {
+    requiresSponsorship: false,
+    currentStatus: 'EU Citizen / Work Permit'
+  }
 });
+
 initDataFile('resume.json', { name: '', email: '', phone: '', summary: '', skills: [] });
-initDataFile('prompts.json', { prompts: [] });
+
+// Default prompts
+initDataFile('prompts.json', {
+  prompts: [
+    {
+      id: 'prompt-default-search',
+      name: 'Job Search',
+      content: 'You are a German job search assistant. Search for jobs matching the user\'s criteria on LinkedIn DE, Indeed DE, and other German job platforms. Present results clearly.',
+      isDefault: true,
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'prompt-default-apply',
+      name: 'Apply to Job',
+      content: 'You are helping the user apply for a job. Review the job description, tailor the resume if needed, and prepare a personalized cover letter in German or English.',
+      isDefault: false,
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'prompt-default-evaluate',
+      name: 'Evaluate Job',
+      content: 'Evaluate this job posting based on: Salary, Company reputation, Tech stack, Work-life balance, Benefits. Give a score 1-10 and explain pros/cons.',
+      isDefault: false,
+      createdAt: new Date().toISOString()
+    }
+  ]
+});
 initDataFile('logs.json', { sessions: [] });
+initDataFile('knowledge.json', { entries: [] });
 
 // Multer config for file uploads
 const upload = multer({
@@ -121,7 +197,7 @@ app.post('/api/jobs', (req, res) => {
       ...req.body,
       id: Date.now().toString(),
       appliedAt: new Date().toISOString().split('T')[0],
-      status: req.body.status || 'found'  // Use frontend's status, default to 'found'
+      status: req.body.status || 'found'
     };
     data.jobs = [newJob, ...(data.jobs || [])];
     fs.writeFileSync(appliedJsonPath, JSON.stringify(data, null, 2));
@@ -175,7 +251,7 @@ app.post('/api/filters', (req, res) => {
   }
 });
 
-// ============ Job Filters API ============
+// ============ Job Filters API (Enhanced) ============
 
 app.get('/api/job-filters', (req, res) => {
   try {
@@ -213,13 +289,130 @@ app.post('/api/resume', (req, res) => {
   }
 });
 
-// ============ Resume Upload API ============
+// ============ Resume Upload + Parse API ============
 
-app.post('/api/resume/upload', upload.single('resume'), (req, res) => {
+app.post('/api/resume/upload', upload.single('resume'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
-  res.json({ success: true, file: req.file.filename });
+
+  // Parse PDF
+  try {
+    const pdfParse = (await import('pdf-parse')).default;
+    const dataBuffer = fs.readFileSync(path.join(dataDir, req.file.filename));
+    const data = await pdfParse(dataBuffer);
+    const text = data.text;
+
+    // Save parsed text
+    fs.writeFileSync(resumeTxtPath, text);
+
+    // Save metadata
+    const meta = {
+      sourceFile: req.file.filename,
+      parsedAt: new Date().toISOString(),
+      textLength: text.length
+    };
+    fs.writeFileSync(resumeMetaPath, JSON.stringify(meta, null, 2));
+
+    res.json({ 
+      success: true, 
+      file: req.file.filename,
+      textLength: text.length
+    });
+  } catch (e) {
+    console.error('PDF parse error:', e);
+    res.json({ success: true, file: req.file.filename });
+  }
+});
+
+// Get resume text
+app.get('/api/resume/text', (req, res) => {
+  try {
+    if (fs.existsSync(resumeTxtPath)) {
+      const text = fs.readFileSync(resumeTxtPath, 'utf-8');
+      res.json({ exists: true, text });
+    } else {
+      res.json({ exists: false, text: '' });
+    }
+  } catch (e) {
+    res.json({ exists: false, text: '' });
+  }
+});
+
+// ============ Prompts API ============
+
+app.get('/api/prompts', (req, res) => {
+  try {
+    const data = JSON.parse(fs.readFileSync(promptsJsonPath, 'utf-8'));
+    res.json(data);
+  } catch {
+    res.json({ prompts: [] });
+  }
+});
+
+app.post('/api/prompts', (req, res) => {
+  try {
+    const { name, content, isDefault } = req.body;
+    const data = JSON.parse(fs.readFileSync(promptsJsonPath, 'utf-8'));
+    
+    const newPrompt = {
+      id: `prompt-${Date.now()}`,
+      name,
+      content,
+      isDefault: isDefault || false,
+      createdAt: new Date().toISOString()
+    };
+    
+    // If setting as default, unset others
+    if (isDefault) {
+      data.prompts = data.prompts.map(p => ({ ...p, isDefault: false }));
+    }
+    
+    data.prompts.push(newPrompt);
+    fs.writeFileSync(promptsJsonPath, JSON.stringify(data, null, 2));
+    res.json({ success: true, prompt: newPrompt });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to save prompt' });
+  }
+});
+
+app.delete('/api/prompts/:id', (req, res) => {
+  try {
+    const data = JSON.parse(fs.readFileSync(promptsJsonPath, 'utf-8'));
+    data.prompts = data.prompts.filter(p => p.id !== req.params.id);
+    fs.writeFileSync(promptsJsonPath, JSON.stringify(data, null, 2));
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to delete prompt' });
+  }
+});
+
+// ============ Knowledge API ============
+
+app.get('/api/knowledge', (req, res) => {
+  try {
+    const data = JSON.parse(fs.readFileSync(knowledgeJsonPath, 'utf-8'));
+    res.json(data);
+  } catch {
+    res.json({ entries: [] });
+  }
+});
+
+app.post('/api/knowledge', (req, res) => {
+  try {
+    const data = JSON.parse(fs.readFileSync(knowledgeJsonPath, 'utf-8'));
+    const entry = {
+      id: `kb-${Date.now()}`,
+      question: req.body.question,
+      answer: req.body.answer,
+      createdAt: new Date().toISOString()
+    };
+    data.entries = [entry, ...(data.entries || [])];
+    fs.writeFileSync(knowledgeJsonPath, JSON.stringify(data, null, 2));
+    res.json({ success: true, entry });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to save knowledge' });
+  }
 });
 
 // ============ Logs API ============
@@ -236,7 +429,8 @@ app.post('/api/logs', (req, res) => {
   try {
     const data = JSON.parse(fs.readFileSync(logsJsonPath, 'utf-8'));
     const log = { ...req.body, timestamp: new Date().toISOString() };
-    data.sessions = [log, ...(data.sessions || []).slice(0, 99)];
+    const existingSessions = data.sessions || [];
+    data.sessions = [log, ...existingSessions].slice(0, 100);
     fs.writeFileSync(logsJsonPath, JSON.stringify(data, null, 2));
     res.json({ success: true });
   } catch {
@@ -280,6 +474,10 @@ app.post('/api/search', async (req, res) => {
     
     jobs = jobs.map(job => ({ ...job, status: 'found' }));
     
+    // Apply filters
+    const filters = JSON.parse(fs.readFileSync(jobFiltersJsonPath, 'utf-8'));
+    jobs = applyFilters(jobs, filters);
+    
     try {
       const data = JSON.parse(fs.readFileSync(logsJsonPath, 'utf-8'));
       const newLog = {
@@ -287,7 +485,6 @@ app.post('/api/search', async (req, res) => {
         message: `Search: ${keywords} in ${location} - Found ${jobs.length} jobs`,
         timestamp: new Date().toISOString()
       };
-      // Properly append to existing sessions
       const existingSessions = data.sessions || [];
       data.sessions = [newLog, ...existingSessions].slice(0, 100);
       fs.writeFileSync(logsJsonPath, JSON.stringify(data, null, 2));
@@ -301,6 +498,39 @@ app.post('/api/search', async (req, res) => {
     res.status(500).json({ error: 'Search failed', message: error.message });
   }
 });
+
+// Apply filters to jobs
+function applyFilters(jobs, filters) {
+  return jobs.filter(job => {
+    // Blacklist companies
+    if (filters.blacklist?.companies?.includes(job.company)) return false;
+    
+    // Whitelist companies (if set)
+    if (filters.whitelist?.companies?.length > 0) {
+      if (!filters.whitelist.companies.some(c => job.company.toLowerCase().includes(c.toLowerCase()))) {
+        // Not in whitelist, but don't filter if whitelist is just suggestions
+      }
+    }
+    
+    // Salary filter
+    if (filters.salary?.min && job.salary) {
+      const salaryNum = parseSalary(job.salary);
+      if (salaryNum && salaryNum < filters.salary.min) return false;
+    }
+    
+    return true;
+  });
+}
+
+// Parse salary string to number (EUR)
+function parseSalary(salaryStr) {
+  if (!salaryStr) return null;
+  const match = salaryStr.match(/(\d{1,3}(?:\.\d{3})*)/);
+  if (match) {
+    return parseInt(match[1].replace(/\./g, ''));
+  }
+  return null;
+}
 
 // ============ Apply to Job API ============
 
