@@ -234,13 +234,13 @@ MIT License - see [LICENSE](LICENSE) file.
 
 ### Unterstützte Plattformen
 
-| Plattform | URL | Status |
-|-----------|-----|--------|
-| LinkedIn | linkedin.com | 🚧 Bald verfügbar |
-| Indeed | indeed.de | 🚧 Bald verfügbar |
-| StepStone | stepstone.de | 🚧 Bald verfügbar |
-| Xing | xing.de | 🚧 Bald verfügbar |
-| Jobbörse | jobboerse.arbeitsagentur.de | 🚧 Bald verfügbar |
+| Plattform | Status | Beschreibung |
+|-----------|--------|--------------|
+| LinkedIn DE | ✅ Bereit | Echte Jobsuche mit Browser-Automatisierung |
+| Indeed DE | ✅ Bereit | Echte Jobsuche mit Browser-Automatisierung |
+| StepStone | ✅ Bereit | Echte Jobsuche mit Browser-Automatisierung |
+| Xing | ✅ Bereit | Echte Jobsuche mit Browser-Automatisierung |
+| Jobbörse | ✅ Bereit | Echte Jobsuche mit Browser-Automatisierung |
 
 ### Schnellstart
 
@@ -364,15 +364,17 @@ MIT Lizenz - see [LICENSE](LICENSE) Datei.
    - Web interface
    - OpenClaw/WhatsApp control (optional)
 
-### Supported German Platforms
+### Supported Platforms
 
-| Platform | Status |
-|----------|--------|
-| LinkedIn DE | ✅ Search |
-| Indeed DE | ✅ Search |
-| StepStone | 🚧 Coming |
-| Xing | 🚧 Coming |
-| Jobbörse | 🚧 Coming |
+| Platform | Status | Description |
+|----------|--------|-------------|
+| LinkedIn DE | ✅ Ready | Real job search with browser automation |
+| Indeed DE | ✅ Ready | Real job search with browser automation |
+| StepStone | ✅ Ready | Real job search with browser automation |
+| Xing | ✅ Ready | Real job search with browser automation |
+| Jobbörse | ✅ Ready | Real job search with browser automation |
+
+> Note: Real search requires you to be logged into the platforms. The browser runs in non-headless mode so you can log in once.
 
 ---
 
