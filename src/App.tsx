@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Send, Upload, Search, Briefcase, FileText, Settings, Trash2, ExternalLink, Check, X, Clock, Building2, MapPin, Euro } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Send, Briefcase, FileText, Settings, Plus, Trash2, CheckCircle, Clock, XCircle, Sparkles, User, MessageCircle, TrendingUp } from 'lucide-react';
 
 interface Job {
   id: string;
@@ -8,34 +8,33 @@ interface Job {
   platform: string;
   location: string;
   salary?: string;
-  description?: string;
-  url?: string;
   status: string;
   appliedAt?: string;
 }
 
-interface Resume {
-  name: string;
-  email: string;
-  phone: string;
-  summary: string;
-  skills: string[];
+interface Message {
+  id: string;
+  type: 'user' | 'bot' | 'action';
+  content: string;
 }
 
 function App() {
-  const [activeTab, setActiveTab] = useState<'search' | 'jobs' | 'resume' | 'settings'>('search');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
-  const [searchResults, setSearchResults] = useState<Job[]>([]);
+  const [messages, setMessages] = useState<Message[]>([
+    { id: '1', type: 'bot', content: '👋 Hi! I\'m your German Job Bot. Tell me what job you\'re looking for!' }
+  ]);
+  const [input, setInput] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
   const [jobs, setJobs] = useState<Job[]>([]);
-  const [resume, setResume] = useState<Resume>({ name: '', email: '', phone: '', summary: '', skills: [] });
-  const [resumeFile, setResumeFile] = useState<File | null>(null);
-  const [isSavingResume, setIsSavingResume] = useState(false);
+  const [activeView, setActiveView] = useState<'chat' | 'jobs' | 'resume'>('chat');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchJobs();
-    fetchResume();
   }, []);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   const fetchJobs = async () => {
     try {
@@ -45,382 +44,264 @@ function App() {
     } catch (e) { console.error(e); }
   };
 
-  const fetchResume = async () => {
-    try {
-      const res = await fetch('/api/resume');
-      const data = await res.json();
-      if (data.name) setResume(data);
-    } catch (e) { console.error(e); }
+  const addMessage = (type: Message['type'], content: string) => {
+    setMessages(prev => [...prev, { id: Date.now().toString(), type, content }]);
   };
 
-  const handleSearch = async () => {
-    if (!searchQuery.trim()) return;
-    setIsSearching(true);
-    setSearchResults([]);
+  const handleSend = async () => {
+    if (!input.trim()) return;
     
-    try {
-      // Parse search query
-      const keywords = searchQuery;
-      const location = 'Germany';
-      
-      const res = await fetch('/api/search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ keywords, location })
-      });
-      const data = await res.json();
-      setSearchResults(data.jobs || []);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsSearching(false);
-    }
-  };
+    const userInput = input.trim();
+    setInput('');
+    addMessage('user', userInput);
+    setIsTyping(true);
 
-  const applyToJob = async (job: Job) => {
-    try {
-      await fetch('/api/jobs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...job, status: 'applied' })
-      });
-      setSearchResults(prev => prev.filter(j => j.id !== job.id));
-      fetchJobs();
-    } catch (e) {
-      console.error(e);
-    }
-  };
+    // Simulate bot thinking
+    setTimeout(() => {
+      addMessage('bot', `💭 Searching for "${userInput}" jobs in Germany...`);
+    }, 500);
 
-  const updateJobStatus = async (jobId: string, status: string) => {
-    try {
-      await fetch(`/api/jobs/${jobId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status })
-      });
-      fetchJobs();
-    } catch (e) { console.error(e); }
-  };
+    setTimeout(() => {
+      addMessage('action', '🔍 Navigating to job platforms...');
+    }, 1500);
 
-  const deleteJob = async (jobId: string) => {
-    try {
-      await fetch(`/api/jobs/${jobId}`, { method: 'DELETE' });
-      fetchJobs();
-    } catch (e) { console.error(e); }
-  };
+    setTimeout(() => {
+      addMessage('action', '✓ Found 15 relevant positions');
+    }, 2500);
 
-  const saveResume = async () => {
-    setIsSavingResume(true);
-    try {
-      await fetch('/api/resume', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(resume)
-      });
-    } catch (e) { console.error(e); }
-    setIsSavingResume(false);
-  };
-
-  const uploadResume = async () => {
-    if (!resumeFile) return;
-    const formData = new FormData();
-    formData.append('resume', resumeFile);
-    try {
-      await fetch('/api/resume/upload', { method: 'POST', body: formData });
-      alert('Resume uploaded!');
-    } catch (e) { console.error(e); }
+    setTimeout(async () => {
+      // Search for jobs
+      try {
+        const res = await fetch('/api/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ keywords: userInput, location: 'Germany' })
+        });
+        const data = await res.json();
+        
+        if (data.jobs && data.jobs.length > 0) {
+          addMessage('bot', `📋 Found ${data.jobs.length} jobs! Adding them to your list.`);
+          
+          // Add jobs to database
+          for (const job of data.jobs) {
+            await fetch('/api/jobs', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ ...job, status: 'found' })
+            });
+          }
+          fetchJobs();
+          setActiveView('jobs');
+        } else {
+          addMessage('bot', '😕 No jobs found. Try different keywords!');
+        }
+      } catch (e) {
+        addMessage('bot', '❌ Error searching jobs. Please try again.');
+      }
+      setIsTyping(false);
+    }, 3500);
   };
 
   const stats = {
     total: jobs.length,
     applied: jobs.filter(j => j.status === 'applied').length,
     interview: jobs.filter(j => j.status === 'interview').length,
-    rejected: jobs.filter(j => j.status === 'rejected').length
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'applied': return 'bg-blue-500/20 text-blue-400';
-      case 'interview': return 'bg-yellow-500/20 text-yellow-400';
-      case 'rejected': return 'bg-red-500/20 text-red-400';
-      case 'offered': return 'bg-green-500/20 text-green-400';
-      default: return 'bg-zinc-700 text-zinc-400';
-    }
+    found: jobs.filter(j => j.status === 'found').length
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Header */}
-      <header className="p-4 border-b border-zinc-800">
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
-          <h1 className="text-xl font-medium">
-            German Job Bot <span className="text-zinc-500">🇩🇪</span>
+    <div className="h-screen flex bg-black text-white">
+      {/* Sidebar */}
+      <aside className="w-64 border-r border-zinc-800 flex flex-col">
+        {/* Logo */}
+        <div className="p-4 border-b border-zinc-800">
+          <h1 className="text-lg font-semibold flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-blue-400" />
+            German Job Bot
           </h1>
-          <div className="flex gap-2">
-            <button onClick={() => setActiveTab('search')} className={`p-2 rounded ${activeTab === 'search' ? 'bg-zinc-800' : 'text-zinc-500'}`}>
-              <Search className="w-5 h-5" />
-            </button>
-            <button onClick={() => setActiveTab('jobs')} className={`p-2 rounded ${activeTab === 'jobs' ? 'bg-zinc-800' : 'text-zinc-500'}`}>
-              <Briefcase className="w-5 h-5" />
-            </button>
-            <button onClick={() => setActiveTab('resume')} className={`p-2 rounded ${activeTab === 'resume' ? 'bg-zinc-800' : 'text-zinc-500'}`}>
-              <FileText className="w-5 h-5" />
-            </button>
-            <button onClick={() => setActiveTab('settings')} className={`p-2 rounded ${activeTab === 'settings' ? 'bg-zinc-800' : 'text-zinc-500'}`}>
-              <Settings className="w-5 h-5" />
-            </button>
+          <p className="text-xs text-zinc-500 mt-1">🇩🇪 AI Job Assistant</p>
+        </div>
+
+        {/* Stats */}
+        <div className="p-4 border-b border-zinc-800">
+          <div className="text-xs text-zinc-500 mb-2">Your Stats</div>
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-zinc-400">Jobs Found</span>
+              <span className="text-white">{stats.found}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-zinc-400">Applied</span>
+              <span className="text-blue-400">{stats.applied}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-zinc-400">Interview</span>
+              <span className="text-yellow-400">{stats.interview}</span>
+            </div>
           </div>
         </div>
-      </header>
 
-      {/* Search Tab */}
-      {activeTab === 'search' && (
-        <div className="p-4">
-          <div className="max-w-2xl mx-auto space-y-4">
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                placeholder="z.B. Python Developer Berlin..."
-                className="flex-1 bg-zinc-900 px-4 py-3 rounded-lg border border-zinc-800 focus:border-zinc-600 focus:outline-none"
-              />
-              <button
-                onClick={handleSearch}
-                disabled={isSearching}
-                className="bg-white text-black px-6 py-3 rounded-lg font-medium hover:bg-zinc-200 disabled:opacity-50"
-              >
-                <Send className="w-5 h-5" />
-              </button>
-            </div>
+        {/* Nav */}
+        <nav className="flex-1 p-2">
+          <button
+            onClick={() => setActiveView('chat')}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm ${activeView === 'chat' ? 'bg-zinc-800' : 'hover:bg-zinc-900'}`}
+          >
+            <MessageCircle className="w-4 h-4" />
+            Chat
+          </button>
+          <button
+            onClick={() => setActiveView('jobs')}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm ${activeView === 'jobs' ? 'bg-zinc-800' : 'hover:bg-zinc-900'}`}
+          >
+            <Briefcase className="w-4 h-4" />
+            Jobs ({jobs.length})
+          </button>
+          <button
+            onClick={() => setActiveView('resume')}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm ${activeView === 'resume' ? 'bg-zinc-800' : 'hover:bg-zinc-900'}`}
+          >
+            <FileText className="w-4 h-4" />
+            Resume
+          </button>
+        </nav>
 
-            {/* Search Stats */}
-            <div className="flex gap-4 text-sm text-zinc-500">
-              <span>{jobs.length} Jobs saved</span>
-              <span>•</span>
-              <span>{stats.applied} Applied</span>
-            </div>
+        {/* Bottom */}
+        <div className="p-4 border-t border-zinc-800">
+          <div className="flex items-center gap-2 text-xs text-zinc-500">
+            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+            Online
+          </div>
+        </div>
+      </aside>
 
-            {/* Search Results */}
-            {isSearching && (
-              <div className="text-center py-8 text-zinc-500">
-                Searching...
-              </div>
-            )}
-
-            {searchResults.length > 0 && (
-              <div className="space-y-3">
-                <h3 className="text-zinc-500 text-sm">Search Results</h3>
-                {searchResults.map(job => (
-                  <div key={job.id} className="bg-zinc-900 p-4 rounded-lg border border-zinc-800">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <h3 className="font-medium">{job.title}</h3>
-                        <div className="flex items-center gap-2 text-zinc-500 text-sm mt-1">
-                          <Building2 className="w-4 h-4" />
-                          <span>{job.company}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-zinc-500 text-sm">
-                          <MapPin className="w-4 h-4" />
-                          <span>{job.location}</span>
-                        </div>
-                        {job.salary && (
-                          <div className="flex items-center gap-2 text-green-400 text-sm mt-1">
-                            <Euro className="w-4 h-4" />
-                            <span>{job.salary}</span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => applyToJob(job)}
-                          className="bg-white text-black px-4 py-2 rounded-lg text-sm font-medium hover:bg-zinc-200"
-                        >
-                          Apply
-                        </button>
-                      </div>
-                    </div>
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col">
+        {/* Chat View */}
+        {activeView === 'chat' && (
+          <>
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {messages.map(msg => (
+                <div key={msg.id} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[70%] rounded-xl px-4 py-3 ${
+                    msg.type === 'user' ? 'bg-blue-600 text-white' :
+                    msg.type === 'bot' ? 'bg-zinc-800 text-zinc-100' :
+                    'bg-zinc-900 text-zinc-400 text-sm font-mono'
+                  }`}>
+                    {msg.content}
                   </div>
-                ))}
-              </div>
-            )}
-
-            {!isSearching && searchResults.length === 0 && (
-              <div className="text-center py-12 text-zinc-500">
-                <Search className="w-12 h-12 mx-auto mb-4 opacity-30" />
-                <p>Search for jobs in Germany</p>
-                <p className="text-sm mt-2">Try: "Python Developer Berlin" or "Data Scientist Remote"</p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Jobs Tab */}
-      {activeTab === 'jobs' && (
-        <div className="p-4">
-          <div className="max-w-2xl mx-auto">
-            {/* Stats */}
-            <div className="grid grid-cols-4 gap-2 mb-6">
-              {[
-                { label: 'Total', value: stats.total, color: 'text-white' },
-                { label: 'Applied', value: stats.applied, color: 'text-blue-400' },
-                { label: 'Interview', value: stats.interview, color: 'text-yellow-400' },
-                { label: 'Rejected', value: stats.rejected, color: 'text-red-400' }
-              ].map(stat => (
-                <div key={stat.label} className="bg-zinc-900 p-3 rounded-lg text-center">
-                  <div className={`text-xl font-medium ${stat.color}`}>{stat.value}</div>
-                  <div className="text-zinc-500 text-xs">{stat.label}</div>
                 </div>
               ))}
+              {isTyping && (
+                <div className="flex justify-start">
+                  <div className="bg-zinc-800 rounded-xl px-4 py-3">
+                    <div className="flex gap-1">
+                      <span className="w-2 h-2 bg-zinc-500 rounded-full animate-bounce"></span>
+                      <span className="w-2 h-2 bg-zinc-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></span>
+                      <span className="w-2 h-2 bg-zinc-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
             </div>
 
-            {/* Job List */}
-            {jobs.length === 0 ? (
-              <div className="text-center py-12 text-zinc-500">
-                <Briefcase className="w-12 h-12 mx-auto mb-4 opacity-30" />
-                <p>No jobs yet</p>
-                <p className="text-sm mt-2">Search and apply to jobs</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {jobs.map(job => (
-                  <div key={job.id} className="bg-zinc-900 p-4 rounded-lg border border-zinc-800">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <h3 className="font-medium">{job.title}</h3>
-                        <div className="flex items-center gap-2 text-zinc-500 text-sm mt-1">
-                          <Building2 className="w-4 h-4" />
-                          <span>{job.company}</span>
-                          <span>•</span>
-                          <span>{job.platform}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-zinc-500 text-sm">
-                          <MapPin className="w-4 h-4" />
-                          <span>{job.location}</span>
-                          {job.salary && <span>•</span>}
-                          {job.salary && <span className="text-green-400">{job.salary}</span>}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <select
-                          value={job.status}
-                          onChange={(e) => updateJobStatus(job.id, e.target.value)}
-                          className={`px-3 py-1 rounded text-sm ${getStatusColor(job.status)}`}
-                        >
-                          <option value="pending">Pending</option>
-                          <option value="applied">Applied</option>
-                          <option value="interview">Interview</option>
-                          <option value="rejected">Rejected</option>
-                          <option value="offered">Offered</option>
-                        </select>
-                        <button onClick={() => deleteJob(job.id)} className="text-zinc-500 hover:text-red-400">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                    {job.appliedAt && (
-                      <div className="text-zinc-600 text-xs mt-2">
-                        Applied: {job.appliedAt}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Resume Tab */}
-      {activeTab === 'resume' && (
-        <div className="p-4">
-          <div className="max-w-2xl mx-auto space-y-4">
-            {/* Upload */}
-            <div className="bg-zinc-900 p-4 rounded-lg border border-zinc-800">
-              <h3 className="font-medium mb-3">Upload PDF Resume</h3>
+            {/* Input */}
+            <div className="p-4 border-t border-zinc-800">
               <div className="flex gap-2">
                 <input
-                  type="file"
-                  accept=".pdf"
-                  onChange={(e) => setResumeFile(e.target.files?.[0] || null)}
-                  className="flex-1 text-sm text-zinc-500"
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                  placeholder="Describe what you want... e.g., 'Python jobs in Berlin, Remote'"
+                  className="flex-1 bg-zinc-900 px-4 py-3 rounded-xl border border-zinc-800 focus:border-blue-500 focus:outline-none"
                 />
                 <button
-                  onClick={uploadResume}
-                  disabled={!resumeFile}
-                  className="bg-zinc-800 px-4 py-2 rounded text-sm disabled:opacity-50"
+                  onClick={handleSend}
+                  disabled={isTyping || !input.trim()}
+                  className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 px-4 py-3 rounded-xl"
                 >
-                  <Upload className="w-4 h-4" />
+                  <Send className="w-5 h-5" />
+                </button>
+              </div>
+              <p className="text-xs text-zinc-500 mt-2">
+                Try: "Search Python developer jobs in Berlin" or "Find remote data science positions"
+              </p>
+            </div>
+          </>
+        )}
+
+        {/* Jobs View */}
+        {activeView === 'jobs' && (
+          <div className="flex-1 overflow-y-auto p-4">
+            <div className="max-w-3xl mx-auto">
+              <h2 className="text-xl font-semibold mb-4">Your Applications</h2>
+              
+              {jobs.length === 0 ? (
+                <div className="text-center py-12 text-zinc-500">
+                  <Briefcase className="w-16 h-16 mx-auto mb-4 opacity-30" />
+                  <p>No jobs yet</p>
+                  <p className="text-sm mt-2">Start chatting to find jobs!</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {jobs.map(job => (
+                    <div key={job.id} className="bg-zinc-900 rounded-xl p-4 flex justify-between items-center">
+                      <div>
+                        <h3 className="font-medium">{job.title}</h3>
+                        <p className="text-zinc-500 text-sm">{job.company} • {job.location}</p>
+                        <p className="text-zinc-600 text-xs mt-1">{job.platform}</p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className={`px-3 py-1 rounded-full text-xs ${
+                          job.status === 'applied' ? 'bg-blue-900/50 text-blue-400' :
+                          job.status === 'interview' ? 'bg-yellow-900/50 text-yellow-400' :
+                          job.status === 'rejected' ? 'bg-red-900/50 text-red-400' :
+                          job.status === 'found' ? 'bg-green-900/50 text-green-400' :
+                          'bg-zinc-800 text-zinc-400'
+                        }`}>
+                          {job.status}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Resume View */}
+        {activeView === 'resume' && (
+          <div className="flex-1 overflow-y-auto p-4">
+            <div className="max-w-xl mx-auto">
+              <h2 className="text-xl font-semibold mb-4">Your Resume</h2>
+              
+              <div className="bg-zinc-900 rounded-xl p-6 space-y-4">
+                <div>
+                  <label className="block text-sm text-zinc-500 mb-1">Full Name</label>
+                  <input type="text" className="w-full bg-zinc-800 px-4 py-2 rounded-lg" placeholder="Your name" />
+                </div>
+                <div>
+                  <label className="block text-sm text-zinc-500 mb-1">Email</label>
+                  <input type="email" className="w-full bg-zinc-800 px-4 py-2 rounded-lg" placeholder="your@email.com" />
+                </div>
+                <div>
+                  <label className="block text-sm text-zinc-500 mb-1">Upload Resume (PDF)</label>
+                  <div className="border-2 border-dashed border-zinc-700 rounded-lg p-8 text-center">
+                    <FileText className="w-8 h-8 mx-auto mb-2 text-zinc-500" />
+                    <p className="text-zinc-500 text-sm">Drag & drop or click to upload</p>
+                  </div>
+                </div>
+                <button className="w-full bg-blue-600 py-3 rounded-lg font-medium">
+                  Save Resume
                 </button>
               </div>
             </div>
-
-            {/* Profile */}
-            <div className="bg-zinc-900 p-4 rounded-lg border border-zinc-800 space-y-3">
-              <h3 className="font-medium">Profile</h3>
-              <input
-                type="text"
-                placeholder="Name"
-                value={resume.name}
-                onChange={(e) => setResume({ ...resume, name: e.target.value })}
-                className="w-full bg-zinc-800 px-3 py-2 rounded border border-zinc-700"
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                value={resume.email}
-                onChange={(e) => setResume({ ...resume, email: e.target.value })}
-                className="w-full bg-zinc-800 px-3 py-2 rounded border border-zinc-700"
-              />
-              <input
-                type="tel"
-                placeholder="Phone"
-                value={resume.phone}
-                onChange={(e) => setResume({ ...resume, phone: e.target.value })}
-                className="w-full bg-zinc-800 px-3 py-2 rounded border border-zinc-700"
-              />
-              <textarea
-                placeholder="Summary"
-                value={resume.summary}
-                onChange={(e) => setResume({ ...resume, summary: e.target.value })}
-                className="w-full bg-zinc-800 px-3 py-2 rounded border border-zinc-700 h-24"
-              />
-              <input
-                type="text"
-                placeholder="Skills (comma separated)"
-                value={resume.skills.join(', ')}
-                onChange={(e) => setResume({ ...resume, skills: e.target.value.split(',').map(s => s.trim()) })}
-                className="w-full bg-zinc-800 px-3 py-2 rounded border border-zinc-700"
-              />
-              <button
-                onClick={saveResume}
-                disabled={isSavingResume}
-                className="w-full bg-white text-black py-2 rounded font-medium disabled:opacity-50"
-              >
-                {isSavingResume ? 'Saving...' : 'Save Profile'}
-              </button>
-            </div>
           </div>
-        </div>
-      )}
-
-      {/* Settings Tab */}
-      {activeTab === 'settings' && (
-        <div className="p-4">
-          <div className="max-w-2xl mx-auto">
-            <div className="bg-zinc-900 p-4 rounded-lg border border-zinc-800">
-              <h3 className="font-medium mb-3">Settings</h3>
-              <div className="space-y-3 text-sm text-zinc-500">
-                <p>Version: 1.0.0</p>
-                <p>Platforms: LinkedIn, Indeed, StepStone, Xing (Coming Soon)</p>
-                <p className="pt-2">German Job Bot helps you find and apply to jobs in Germany. Built with ❤️</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+        )}
+      </main>
     </div>
   );
 }

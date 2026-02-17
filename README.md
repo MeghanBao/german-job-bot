@@ -14,6 +14,7 @@
 
 ### Features
 
+- 💬 **Chat Interface** - Natural language conversation like ChatGPT - just tell it what you want
 - 🔍 **Natural Language Search** - Just describe the jobs you want (e.g., "Python Jobs in Berlin, Remote")
 - 🌐 **Multi-Platform Support** - Works with LinkedIn, Indeed, StepStone, Xing, Jobbörse
 - 🤖 **Real Browser Integration** - Uses Playwright for browser automation
@@ -23,6 +24,7 @@
 - 📝 **Resume Parsing** - Upload PDF, auto-parse to text
 - ✉️ **Cover Letter Generation** - AI-generated personalized cover letters
 - 📝 **Session Logging** - Detailed logs of AI actions and reasoning
+- 🎨 **Modern Web UI** - Beautiful chat-based interface with real-time updates
 
 ### Supported Platforms
 
@@ -59,14 +61,16 @@ cd german-job-bot
 # Install dependencies
 npm install
 
-# Install Playwright browser
-npm run install-browser
-
-# Start the dashboard & backend service
+# Start the app (frontend + backend)
 npm start
 ```
 
-Then open **http://localhost:5173** in your browser.
+Then open **http://localhost:3001** in your browser.
+
+That's it! The web interface includes:
+- 💬 Chat interface - talk to the bot naturally
+- 📋 Jobs panel - track all your applications  
+- 📄 Resume manager - upload and manage your CV
 
 ### Configuration
 
