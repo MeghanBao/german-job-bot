@@ -28,13 +28,13 @@
 
 ### Supported Platforms
 
-| Platform | URL | Status |
-|----------|-----|--------|
-| LinkedIn | linkedin.com | 🚧 Coming soon |
-| Indeed | indeed.de | 🚧 Coming soon |
-| StepStone | stepstone.de | 🚧 Coming soon |
-| Xing | xing.de | 🚧 Coming soon |
-| Jobbörse | jobboerse.arbeitsagentur.de | 🚧 Coming soon |
+| Platform | Status | Description |
+|----------|--------|-------------|
+| LinkedIn DE | ✅ Ready | Real job search with browser automation |
+| Indeed DE | ✅ Ready | Real job search with browser automation |
+| StepStone | ✅ Ready | Real job search with browser automation |
+| Xing | ✅ Ready | Real job search with browser automation |
+| Jobbörse | ✅ Ready | Real job search with browser automation |
 
 ### Quick Example
 
