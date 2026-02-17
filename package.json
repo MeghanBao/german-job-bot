@@ -8,7 +8,8 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "server": "node server.js",
-    "start": "concurrently \"npm run server\" \"npm run dev\""
+    "start": "concurrently \"npm run server\" \"npm run dev\"",
+    "install-browser": "npx playwright install chromium"
   },
   "keywords": ["job", "germany", "automation", "ai", "求职", "德国"],
   "author": "Meghan",
@@ -23,7 +24,8 @@
     "framer-motion": "^10.16.0",
     "clsx": "^2.0.0",
     "tailwind-merge": "^2.0.0",
-    "class-variance-authority": "^0.7.0"
+    "class-variance-authority": "^0.7.0",
+    "playwright": "^1.40.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.0",
