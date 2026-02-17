@@ -2,7 +2,7 @@
   "name": "german-job-bot",
   "version": "1.0.0",
   "type": "module",
-  "description": "AI-powered German job application assistant - describe what you want, it handles the rest",
+  "description": "AI-powered German job application assistant",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -10,25 +10,34 @@
     "server": "node server.js",
     "start": "concurrently \"npm run server\" \"npm run dev\""
   },
-  "keywords": [
-    "job",
-    "求职",
-    "germany",
-    "automation",
-    "ai",
-    "employment",
-    "career"
-  ],
+  "keywords": ["job", "germany", "automation", "ai", "求职", "德国"],
   "author": "Meghan",
   "license": "MIT",
   "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.20.0",
+    "zustand": "^4.4.7",
+    "lucide-react": "^0.294.0",
+    "recharts": "^2.10.0",
+    "framer-motion": "^10.16.0",
+    "clsx": "^2.0.0",
+    "tailwind-merge": "^2.0.0",
+    "class-variance-authority": "^0.7.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@vitejs/plugin-react": "^4.2.0",
+    "typescript": "^5.3.0",
+    "vite": "^5.0.0",
+    "tailwindcss": "^3.4.0",
+    "postcss": "^8.4.0",
+    "autoprefixer": "^10.4.0",
+    "concurrently": "^8.2.0",
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "multer": "^1.4.5-lts.1",
     "pdf-parse": "^1.1.1"
-  },
-  "devDependencies": {
-    "concurrently": "^8.2.2",
-    "vite": "^5.0.0"
   }
 }
