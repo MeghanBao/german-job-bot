@@ -108,14 +108,16 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// Landing page
+// Landing page - serve React app directly
 app.get('/', (req, res) => {
-  const landingPath = path.join(__dirname, 'public', 'landing.html');
-  res.sendFile(fs.existsSync(landingPath) ? landingPath : path.join(__dirname, 'public', 'index.html'));
+  const indexPath = path.join(staticPath, 'index.html');
+  res.sendFile(fs.existsSync(indexPath) ? indexPath : path.join(__dirname, 'public', 'index.html'));
 });
 
+// App route - same as landing
 app.get('/app', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  const indexPath = path.join(staticPath, 'index.html');
+  res.sendFile(fs.existsSync(indexPath) ? indexPath : path.join(__dirname, 'public', 'index.html'));
 });
 
 // Serve static files
