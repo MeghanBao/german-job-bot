@@ -31,7 +31,7 @@
 
 ### Advanced Filtering
 
-Similar to apply-bot, German Job Bot supports detailed filters:
+German Job Bot supports detailed filters:
 
 ```json
 {
