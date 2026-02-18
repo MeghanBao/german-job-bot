@@ -395,7 +395,6 @@ MIT Lizenz - see [LICENSE](LICENSE) Datei.
 
 5. 📱 **Multi-Channel**
    - Web interface
-   - OpenClaw/WhatsApp control (optional)
 
 ### Supported Platforms
 
