@@ -16,6 +16,7 @@ import {
   runsRouter,
   knowledgeRouter
 } from './src/routes/index.js';
+import { searchSchema, validate } from './src/utils/validation.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -139,9 +140,9 @@ app.use('/api/logs', logsRouter);
 app.use('/api/runs', runsRouter);
 app.use('/api/knowledge', knowledgeRouter);
 
-// Search API
-app.post('/api/search', async (req, res) => {
-  const { keywords, location = 'Germany', platform } = req.body;
+// Search API - with validation
+app.post('/api/search', validate(searchSchema), async (req, res) => {
+  const { keywords, location, platform } = req.validatedBody;
   
   console.log(`🔍 Searching for "${keywords}" in ${location}...`);
   
