@@ -1,7 +1,5 @@
 # German Job Bot 🇩🇪
 
-> AI-powered job application assistant for Germany
-
 [English](#english) | [Deutsch](#deutsch)
 
 ---
@@ -12,14 +10,18 @@
 
 German Job Bot helps you find and apply to jobs in Germany automatically.
 
-### Quick Start
+---
+
+### Option 1: Web Interface (Recommended)
+
+**For beginners - just open in browser**
 
 ```bash
-# 1. Clone the project
+# 1. Clone
 git clone https://github.com/MeghanBao/german-job-bot.git
 cd german-job-bot
 
-# 2. Install dependencies
+# 2. Install
 npm install
 
 # 3. Install browser
@@ -29,31 +31,69 @@ npm run install-browser
 npm start
 ```
 
-Then open **http://localhost:3001** in your browser.
+Then open **http://localhost:3001**
 
-### How to Use
+**How to use:**
+1. Type in chat: "Python jobs Berlin"
+2. Click "Apply" on a job
+3. Track status in Jobs tab
 
-1. **Search Jobs**
-   - Type in the chat: "Python jobs Berlin" or "JavaScript Developer Remote"
+---
 
-2. **Apply**
-   - Click "Apply" on any job
-   - The bot will try to apply automatically
+### Option 2: MCP (For developers)
 
-3. **Track**
-   - See all your applications in the Jobs tab
-   - Update status: Found → Applied → Interview → Offer
+**For use with Claude, Cursor, or VSCode**
+
+```bash
+# Start MCP server
+npm run mcp
+```
+
+Then configure in your AI editor:
+
+**For Claude Desktop:**
+Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
+```json
+{
+  "mcpServers": {
+    "german-job-bot": {
+      "command": "node",
+      "args": ["./mcp-server.js"]
+    }
+  }
+}
+```
+
+**For Cursor:**
+Add to `.cursor/mcp.json`:
+```json
+{
+  "mcpServers": {
+    "german-job-bot": {
+      "command": "node",
+      "args": ["./mcp-server.js"]
+    }
+  }
+}
+```
+
+Then just tell your AI:
+- "Search for Python jobs in Berlin"
+- "Show my job applications"
+- "What's my application stats?"
+
+---
 
 ### Features
 
 - 🔍 Search 5 German job platforms
-- 📄 Upload and parse PDF resume
-- ❓ Answer library for common questions
-- 📊 Track your applications
+- 📄 Upload PDF resume
+- ❓ Answer library
+- 📊 Track applications
 
-### Need Help?
+### License
 
-- Open an issue: https://github.com/MeghanBao/german-job-bot/issues
+MIT
 
 ---
 
@@ -63,14 +103,18 @@ Then open **http://localhost:3001** in your browser.
 
 German Job Bot hilft dir, Jobs in Deutschland automatisch zu finden und dich zu bewerben.
 
-### Schnellstart
+---
+
+### Option 1: Web Interface (Empfohlen)
+
+**Für Anfänger - einfach im Browser öffnen**
 
 ```bash
-# 1. Projekt klonen
+# 1. Klonen
 git clone https://github.com/MeghanBao/german-job-bot.git
 cd german-job-bot
 
-# 2. Abhängigkeiten installieren
+# 2. Installieren
 npm install
 
 # 3. Browser installieren
@@ -82,32 +126,64 @@ npm start
 
 Dann **http://localhost:3001** im Browser öffnen.
 
-### So funktioniert's
+**So funktioniert's:**
+1. Tippe im Chat: "Python Jobs Berlin"
+2. Klicke "Apply" bei einem Job
+3. Verfolge den Status im Jobs Tab
 
-1. **Jobs suchen**
-   - Tippe im Chat: "Python Jobs Berlin" oder "JavaScript Developer Remote"
+---
 
-2. **Bewerben**
-   - Klicke "Apply" bei einem Job
-   - Der Bot bewirbt sich automatisch
+### Option 2: MCP (Für Entwickler)
 
-3. **Verfolgen**
-   - Alle Bewerbungen im Jobs Tab
-   - Status aktualisieren: Found → Applied → Interview → Offer
+**Für Nutzung mit Claude, Cursor oder VSCode**
+
+```bash
+# MCP Server starten
+npm run mcp
+```
+
+Dann in deinem AI-Editor konfigurieren:
+
+**Für Claude Desktop:**
+In `~/Library/Application Support/Claude/claude_desktop_config.json`:
+```json
+{
+  "mcpServers": {
+    "german-job-bot": {
+      "command": "node",
+      "args": ["./mcp-server.js"]
+    }
+  }
+}
+```
+
+**Für Cursor:**
+In `.cursor/mcp.json`:
+```json
+{
+  "mcpServers": {
+    "german-job-bot": {
+      "command": "node",
+      "args": ["./mcp-server.js"]
+    }
+  }
+}
+```
+
+Dann sage deinem AI:
+- "Suche Python Jobs in Berlin"
+- "Zeige meine Bewerbungen"
+- "Was ist mein Bewerbungsstatus?"
+
+---
 
 ### Funktionen
 
 - 🔍 5 deutsche Jobplattformen durchsuchen
-- 📄 PDF-Lebenslauf hochladen und parsen
-- ❓ Antwortbibliothek für häufige Fragen
+- 📄 PDF-Lebenslauf hochladen
+- ❓ Antwortbibliothek
 - 📊 Bewerbungen verfolgen
 
-### Hilfe?
-
-- Issue erstellen: https://github.com/MeghanBao/german-job-bot/issues
-
----
-
-## License
+### Lizenz
 
 MIT
