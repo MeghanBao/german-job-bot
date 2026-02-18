@@ -1,4 +1,4 @@
-// Resume API Routes
+﻿// Resume API Routes - Enhanced with better error handling
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
@@ -9,24 +9,38 @@ const router = express.Router();
 const getDataPath = (filename) => path.join(process.cwd(), 'data', filename);
 const dataDir = getDataPath('');
 
-// Multer config
+// Multer config with enhanced validation
 const upload = multer({
   storage: multer.diskStorage({
     destination: (req, file, cb) => cb(null, dataDir),
     filename: (req, file, cb) => {
-      const ext = path.extname(file.originalname);
-      cb(null, `resume${ext}`);
+      const ext = path.extname(file.originalname).toLowerCase();
+      cb(null, esume);
     }
   }),
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
   fileFilter: (req, file, cb) => {
-    if (file.mimetype === 'application/pdf' || file.originalname.endsWith('.pdf')) {
+    // Only allow PDF files
+    if (file.mimetype === 'application/pdf' || file.originalname.toLowerCase().endsWith('.pdf')) {
       cb(null, true);
     } else {
-      cb(new Error('Only PDF files allowed'));
+      cb(new Error('Only PDF files are allowed'));
     }
   }
 });
+
+// Error handling middleware for multer
+const handleUploadError = (err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ error: 'File too large. Maximum size is 10MB.' });
+    }
+    return res.status(400).json({ error: err.message });
+  } else if (err) {
+    return res.status(400).json({ error: err.message });
+  }
+  next();
+};
 
 const readJson = (filepath, defaultValue = {}) => {
   try {
@@ -49,31 +63,58 @@ router.post('/', (req, res) => {
   res.json({ success: true });
 });
 
-// Upload + parse resume
-router.post('/upload', upload.single('resume'), async (req, res) => {
+// Upload + parse resume with progress tracking
+router.post('/upload', upload.single('resume'), handleUploadError, async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
 
   try {
     const pdfParse = (await import('pdf-parse')).default;
-    const dataBuffer = fs.readFileSync(path.join(dataDir, req.file.filename));
+    const filePath = path.join(dataDir, req.file.filename);
+    
+    // Check file exists
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'File not found after upload' });
+    }
+    
+    const dataBuffer = fs.readFileSync(filePath);
+    
+    // Check file is not empty
+    if (dataBuffer.length === 0) {
+      fs.unlinkSync(filePath); // Clean up empty file
+      return res.status(400).json({ error: 'Uploaded file is empty' });
+    }
+    
     const data = await pdfParse(dataBuffer);
     
     // Save parsed text
-    fs.writeFileSync(getDataPath('resume.txt'), data.text);
+    fs.writeFileSync(getDataPath('resume.txt'), data.text || '');
     
     // Save metadata
     const meta = {
       sourceFile: req.file.filename,
       parsedAt: new Date().toISOString(),
-      textLength: data.text.length
+      textLength: data.text?.length || 0,
+      pageCount: data.numpages || 0
     };
     writeJson(getDataPath('resume-meta.json'), meta);
 
-    res.json({ success: true, file: req.file.filename, textLength: data.text.length });
+    res.json({ 
+      success: true, 
+      file: req.file.filename, 
+      textLength: data.text?.length || 0,
+      pageCount: data.numpages || 0
+    });
   } catch (e) {
-    res.json({ success: true, file: req.file.filename });
+    console.error('PDF parse error:', e);
+    // Return success anyway to not block the user - they can enter manually
+    res.json({ 
+      success: true, 
+      file: req.file.filename, 
+      textLength: 0,
+      warning: 'Could not parse PDF. Please enter resume details manually.'
+    });
   }
 });
 

@@ -1,0 +1,8 @@
+﻿{
+  "keywords": [],
+  "locations": ["Germany"],
+  "salaryMin": 50000,
+  "requireVisa": false,
+  "blacklistCompanies": [],
+  "whitelistCompanies": ["SAP", "Bosch", "Siemens", "Volkswagen", "BMW", "Mercedes"]
+}

@@ -1,0 +1,46 @@
+﻿{
+  "blacklist": {
+    "companies": [],
+    "keywords": ["unpaid internship", "commission only"]
+  },
+  "whitelist": {
+    "companies": ["SAP", "Bosch", "Siemens", "Volkswagen", "BMW"],
+    "keywords": ["remote-first", "flexible hours"]
+  },
+  "salary": {
+    "min": 50000,
+    "max": 120000,
+    "currency": "EUR"
+  },
+  "workType": {
+    "remote": true,
+    "hybrid": true,
+    "onsite": true
+  },
+  "jobRequirements": {
+    "levels": ["Mid-level", "Senior", "Staff"]
+  },
+  "techStack": {
+    "mustHave": ["Python", "JavaScript", "TypeScript", "React"],
+    "niceToHave": ["Node.js", "AWS", "Docker"]
+  },
+  "companyPreferences": {
+    "sizes": ["Medium", "Large"],
+    "types": ["Product Company", "SaaS"]
+  },
+  "autoRules": {
+    "autoApply": {
+      "enabled": false
+    },
+    "autoSkip": {
+      "enabled": true
+    }
+  },
+  "benefits": {
+    "mustHave": ["Health insurance", "Pension"],
+    "preferred": ["Stock options", "Bonus"]
+  },
+  "visa": {
+    "requiresSponsorship": false
+  }
+}
