@@ -12,7 +12,7 @@ German Job Bot helps you find and apply to jobs in Germany automatically.
 
 ---
 
-### Option 1: Web Interface (Recommended)
+### Option 1: Web Interface
 
 **For beginners - just open in browser**
 
@@ -40,7 +40,7 @@ Then open **http://localhost:3001**
 
 ---
 
-### Option 2: MCP (For developers)
+### Option 2: MCP
 
 **For use with Claude, Cursor, or VSCode**
 
@@ -105,7 +105,7 @@ German Job Bot hilft dir, Jobs in Deutschland automatisch zu finden und dich zu 
 
 ---
 
-### Option 1: Web Interface (Empfohlen)
+### Option 1: Web Interface
 
 **Für Anfänger - einfach im Browser öffnen**
 
@@ -133,7 +133,7 @@ Dann **http://localhost:3001** im Browser öffnen.
 
 ---
 
-### Option 2: MCP (Für Entwickler)
+### Option 2: MCP
 
 **Für Nutzung mit Claude, Cursor oder VSCode**
 
